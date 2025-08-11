@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Today's Routine — ADHD Friendly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f7f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --text:#0f172a;
+      --accent:#6366f1;
+      --accent-2:#7c3aed;
+      --success:#10b981;
+      --danger:#ef4444;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 6px 18px rgba(16,24,40,0.06);
+      --radius:14px;
+      --task-height:64px;
+      --btn-bg: linear-gradient(90deg,var(--accent),var(--accent-2));
+      --btn-text: #fff;
+      --input-border: rgba(0,0,0,0.06);
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220;
+      --card:#071025;
+      --muted:#94a3b8;
+      --text:#e6eef8;
+      --accent:#6d28d9;
+      --accent-2:#4f46e5;
+      --success:#34d399;
+      --danger:#fb7185;
+      --glass: rgba(255,255,255,0.03);
+      --shadow: 0 8px 30px rgba(2,6,23,0.7);
+      --btn-bg: linear-gradient(90deg,var(--accent-2),var(--accent));
+      --btn-text: #fff;
+      --input-border: rgba(255,255,255,0.06);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:'Poppins',system-ui,Segoe UI,Arial;
+      background:linear-gradient(180deg,var(--bg),transparent);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:20px;
+    }
+
+    .app{
+      max-width:980px;
+      margin:12px auto;
+      display:grid;
+      grid-template-columns:1fr 360px;
+      gap:20px;
+    }
+
+    .panel{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    header.app-header{
+      display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
+    }
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:44px;height:44px;border-radius:10px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;color:var(--btn-text);font-weight:700;font-size:18px;box-shadow:0 6px 18px rgba(99,102,241,0.12);
+    }
+    h1{font-size:18px;margin:0}
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{
+      background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:13px;color:var(--text);
+    }
+    [data-theme="dark"] .btn{border:1px solid rgba(255,255,255,0.04)}
+    .primary{
+      background:var(--btn-bg);color:var(--btn-text);border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;
+    }
+
+    .now-card{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px;border-radius:12px;margin-bottom:12px;background:linear-gradient(90deg,rgba(99,102,241,0.08),rgba(124,58,237,0.06));
+    }
+    .now-title{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .now-task{font-size:22px;font-weight:700}
+    .now-time{font-size:13px;color:var(--muted);margin-top:6px}
+
+    .list-wrap{height:calc(100vh - 340px);overflow:auto;padding-right:6px}
+    .task-item{
+      display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:10px;height:var(--task-height);background:linear-gradient(180deg,var(--card),var(--glass));transition:transform .35s cubic-bezier(.2,.9,.2,1),opacity .25s ease,box-shadow .2s ease;
+      box-shadow: 0 6px 12px rgba(2,6,23,0.03);
+    }
+    [data-theme="dark"] .task-item{box-shadow:0 6px 18px rgba(2,6,23,0.5)}
+    .task-left{display:flex;gap:12px;align-items:center}
+    .time-pill{min-width:110px;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,0.03);font-weight:600}
+    [data-theme="dark"] .time-pill{background:rgba(255,255,255,0.03)}
+    .task-name{font-weight:600}
+    .task-actions{display:flex;gap:6px}
+    .tiny{font-size:12px;padding:6px 8px;border-radius:8px}
+
+    .upcoming-card{padding:12px;border-radius:12px;margin-top:6px;background:linear-gradient(180deg,var(--card),var(--glass));}
+    .up-title{font-weight:700;margin:0 0 8px 0}
+    .up-list{max-height:180px;overflow:auto}
+    .up-item{display:flex;justify-content:space-between;padding:8px 6px;border-radius:8px}
+    .muted{color:var(--muted)}
+
+    .sidebar{display:flex;flex-direction:column;gap:12px}
+    .routines{display:flex;gap:8px;align-items:center}
+    select{padding:10px;border-radius:10px;border:1px solid var(--input-border);background:transparent;color:var(--text)}
+    .mini{font-size:13px}
+
+    .add-btn{display:block;width:100%;padding:12px;border-radius:10px;background:var(--btn-bg);color:var(--btn-text);font-weight:700;border:none;cursor:pointer}
+
+    .settings{padding:12px;border-radius:10px;background:linear-gradient(180deg,var(--card),var(--glass))}
+    .setting-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+
+    input[type="text"],input[type="time"],select{padding:10px;border-radius:8px;border:1px solid var(--input-border);background:transparent;color:var(--text)}
+    .muted-sm{color:var(--muted);font-size:13px}
+    .divider{height:1px;background:var(--input-border);margin:10px 0;border-radius:4px}
+
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.55);display:flex;align-items:center;justify-content:center;z-index:60}
+    .modal{width:520px;background:var(--card);border-radius:12px;padding:18px}
+
+    @media (max-width:880px){
+      .app{grid-template-columns:1fr;}
+      .list-wrap{height:calc(100vh - 520px)}
+      .sidebar{order:2}
+    }
+
+    .task-list{position:relative}
+    .move-anim{transition:transform .45s cubic-bezier(.2,.9,.2,1),opacity .3s ease}
+
+    /* custom labelled time buttons that open the native time picker */
+    .time-control{display:flex;gap:8px;align-items:center}
+    .time-button{
+      appearance:none;
+      -webkit-appearance:none;
+      padding:10px 12px;border-radius:8px;border:1px solid var(--input-border);background:transparent;font-weight:600;cursor:pointer;color:var(--text);
+    }
+    /* hide underlying time inputs visually but keep accessible and focusable */
+    .hidden-time-input{
+      position:absolute;opacity:0;pointer-events:auto;width:1px;height:1px;border:0;padding:0;margin:0;
+    }
+    .sr-only{position:absolute;left:-9999px}
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="panel">
+      <header class="app-header">
+        <div class="brand">
+          <div class="logo">R</div>
+          <div>
+            <h1>Today's Routine</h1>
+            <div class="muted-sm">Simple ADHD-friendly daily schedule</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn" id="open-settings">Settings</button>
+          <button class="primary" id="add-task">+ Add Task</button>
+        </div>
+      </header>
+
+      <div class="now-card" id="nowCard">
+        <div class="now-title">Happening now</div>
+        <div class="now-task" id="nowTask">No task — relax or add one</div>
+        <div class="now-time muted-sm" id="nowTime">--</div>
+      </div>
+
+      <div class="panel" style="padding:12px; margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="muted-sm">Today's tasks</div>
+          <div class="muted-sm">Start: <span id="startOfDay">--</span> • End: <span id="endOfDay">--</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="list-wrap">
+          <div class="task-list" id="taskList">
+            <!-- tasks injected here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="upcoming-card">
+        <div class="up-title">Upcoming</div>
+        <div class="up-list" id="upcomingList">
+          <!-- upcoming tasks short list -->
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-weight:700">Routines</div>
+          <button class="btn" id="newRoutine">New</button>
+        </div>
+        <div class="routines">
+          <select id="routineSelect"></select>
+        </div>
+        <div class="muted-sm" style="margin-top:8px">Choose a routine to edit its tasks. Routines & settings are saved locally in your browser.</div>
+      </div>
+
+      <div class="panel settings">
+        <div style="font-weight:700;margin-bottom:8px">Quick Settings</div>
+        <div class="setting-row">
+          <div class="mini">Time format</div>
+          <select id="timeFormatSelect">
+            <option value="12">12-hour (AM/PM)</option>
+            <option value="24">24-hour</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div class="mini">Theme</div>
+          <select id="themeSelect">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div style="font-weight:700;margin-bottom:8px">Help & Tips</div>
+        <div class="muted-sm">Add tasks with clear time ranges. Edit tasks to correct times — they will auto-sort and animate into place to keep your day structured.</div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- task modal template -->
+  <template id="taskModalTpl">
+    <div class="modal-backdrop">
+      <div class="modal">
+        <h3 id="modalTitle">Add Task</h3>
+        <div style="margin-top:12px">
+          <div class="form-row" style="margin-bottom:10px">
+            <input type="text" id="taskName" placeholder="Task name (e.g., Office work)" style="flex:1;width:100%" />
+          </div>
+
+          <!-- labelled time button controls (open native time pickers) -->
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="flex:1">
+              <div class="muted-sm" style="margin-bottom:6px;font-weight:600">Start time</div>
+              <div class="time-control">
+                <button class="time-button" id="startTimeBtn" type="button">Set start</button>
+                <input class="hidden-time-input" id="taskStart" type="time" />
+              </div>
+            </div>
+
+            <div style="flex:1">
+              <div class="muted-sm" style="margin-bottom:6px;font-weight:600">End time</div>
+              <div class="time-control">
+                <button class="time-button" id="endTimeBtn" type="button">Set end</button>
+                <input class="hidden-time-input" id="taskEnd" type="time" />
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+            <button class="btn" id="modalCancel">Cancel</button>
+            <button class="primary" id="modalSave">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- routine modal -->
+  <template id="routineModalTpl">
+    <div class="modal-backdrop">
+      <div class="modal">
+        <h3>Create Routine</h3>
+        <div style="margin-top:12px">
+          <input type="text" id="routineName" placeholder="Routine name (e.g., Weekends)" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--input-border)" />
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button class="btn" id="routineCancel">Cancel</button>
+            <button class="btn" id="routineSave">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    // Simple routine/task manager matching your final blueprint
+    const KEY = 'adhd_routines_v1';
+    const KEY_SETTINGS = 'adhd_routines_settings_v1';
+
+    // Utilities
+    const qs = s => document.querySelector(s);
+    const qsa = s => Array.from(document.querySelectorAll(s));
+    const genId = () => 'id_'+Math.random().toString(36).slice(2,9);
+
+    // Default data
+    const defaultData = {
+      routines:[
+        {id: genId(), name: 'Weekdays', tasks:[
+          {id: genId(), name:'Wake up',start:'07:00',end:'07:30'},
+          {id: genId(), name:'Morning routine',start:'07:30',end:'08:15'},
+          {id: genId(), name:'Commute / Prep',start:'08:15',end:'09:30'},
+          {id: genId(), name:'Office work',start:'10:00',end:'13:00'},
+          {id: genId(), name:'Lunch',start:'13:00',end:'14:00'},
+          {id: genId(), name:'Afternoon work',start:'14:00',end:'18:00'},
+          {id: genId(), name:'Evening unwind',start:'20:00',end:'22:00'},
+        ]}
+      ]
+    };
+    const defaultSettings = { timeFormat:'12', theme:'light', selectedRoutineId:null };
+
+    // Load state/settings
+    function loadState(){ try{ const s = localStorage.getItem(KEY); return s?JSON.parse(s):null;}catch(e){return null} }
+    function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+    function loadSettings(){ try{ const s = localStorage.getItem(KEY_SETTINGS); return s?JSON.parse(s):null;}catch(e){return null} }
+    function saveSettings(){ localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings)); }
+
+    let state = loadState();
+    let settings = loadSettings();
+    if(!state){ state = defaultData; saveState(); }
+    if(!settings){ settings = defaultSettings; saveSettings(); }
+    if(!settings.selectedRoutineId){ settings.selectedRoutineId = state.routines[0].id; saveSettings(); }
+
+    // Elements
+    const routineSelect = qs('#routineSelect');
+    const taskList = qs('#taskList');
+    const upcomingList = qs('#upcomingList');
+    const nowTask = qs('#nowTask');
+    const nowTime = qs('#nowTime');
+    const startOfDayEl = qs('#startOfDay');
+    const endOfDayEl = qs('#endOfDay');
+
+    // Init
+    applyTheme(settings.theme);
+    qs('#timeFormatSelect').value = settings.timeFormat;
+    qs('#themeSelect').value = settings.theme;
+
+    renderRoutineOptions();
+    renderAll();
+
+    // Events
+    qs('#add-task').addEventListener('click', openAddTask);
+    qs('#open-settings').addEventListener('click', ()=>alert('Use the quick settings on the right to change time format and theme.'));
+    qs('#newRoutine').addEventListener('click', openNewRoutine);
+    routineSelect.addEventListener('change', onRoutineChange);
+    qs('#timeFormatSelect').addEventListener('change', (e)=>{ settings.timeFormat = e.target.value; saveSettings(); renderAll(); });
+    qs('#themeSelect').addEventListener('change', (e)=>{ settings.theme = e.target.value; saveSettings(); applyTheme(settings.theme); });
+
+    // Update every 30s to keep current task accurate
+    setInterval(updateNowView, 30000);
+
+    function applyTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme==='dark'?'dark':'light');
+    }
+
+    function renderRoutineOptions(){
+      routineSelect.innerHTML = '';
+      state.routines.forEach(r => { const opt = document.createElement('option'); opt.value = r.id; opt.textContent = r.name; if(settings.selectedRoutineId===r.id) opt.selected=true; routineSelect.appendChild(opt); });
+    }
+
+    function currentRoutine(){ return state.routines.find(r=>r.id===settings.selectedRoutineId) || state.routines[0]; }
+
+    function renderAll(){ renderTaskList(); updateNowView(); }
+
+    function renderTaskList(){
+      const routine = currentRoutine();
+      if(!routine) return;
+
+      // sort tasks by start time
+      routine.tasks.sort((a,b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+
+      // update start/end of day markers
+      if(routine.tasks.length){
+        startOfDayEl.textContent = formatTime(routine.tasks[0].start);
+        endOfDayEl.textContent = formatTime(routine.tasks[routine.tasks.length-1].end);
+      } else { startOfDayEl.textContent='--'; endOfDayEl.textContent='--'; }
+
+      // animated reorder: snapshot old nodes
+      const oldNodes = Array.from(taskList.children);
+      const oldRects = oldNodes.map(n=>n.getBoundingClientRect());
+
+      taskList.innerHTML='';
+
+      routine.tasks.forEach(task => {
+        const div = document.createElement('div'); div.className='task-item move-anim'; div.dataset.id = task.id;
+        const left = document.createElement('div'); left.className='task-left';
+        const timePill = document.createElement('div'); timePill.className='time-pill'; timePill.textContent = `${formatTime(task.start)} → ${formatTime(task.end)}`;
+        const name = document.createElement('div'); name.className='task-name'; name.textContent = task.name;
+        left.appendChild(timePill); left.appendChild(name);
+
+        const actions = document.createElement('div'); actions.className='task-actions';
+        const edit = document.createElement('button'); edit.className='tiny btn'; edit.textContent='Edit'; edit.onclick = ()=>openEditTask(task.id);
+        const del = document.createElement('button'); del.className='tiny btn'; del.textContent='Delete'; del.onclick = ()=>deleteTask(task.id);
+        actions.appendChild(edit); actions.appendChild(del);
+
+        div.appendChild(left); div.appendChild(actions); taskList.appendChild(div);
+      });
+
+      // animate from old positions
+      const newNodes = Array.from(taskList.children);
+      newNodes.forEach((node)=>{
+        const old = oldNodes.find(n=>n.dataset.id === node.dataset.id);
+        if(old){
+          const oldRect = oldRects[oldNodes.indexOf(old)];
+          const newRect = node.getBoundingClientRect();
+          const dy = oldRect.top - newRect.top;
+          if(Math.abs(dy) > 1){
+            node.style.transform = `translateY(${dy}px)`;
+            node.style.opacity = '0.9';
+            requestAnimationFrame(()=>{ node.style.transition='transform .45s cubic-bezier(.2,.9,.2,1),opacity .3s ease'; node.style.transform = ''; node.style.opacity='1'; });
+          }
+        } else {
+          node.style.opacity='0';
+          requestAnimationFrame(()=>{ node.style.transition='opacity .25s ease'; node.style.opacity='1'; });
+        }
+      });
+
+      renderUpcoming();
+    }
+
+    function renderUpcoming(){
+      const routine = currentRoutine(); upcomingList.innerHTML='';
+      if(!routine) return;
+      const nowM = getNowMinutes();
+      const upcoming = routine.tasks.filter(t => timeToMinutes(t.start) >= nowM).slice(0,6);
+      upcoming.forEach(t=>{
+        const div = document.createElement('div'); div.className='up-item';
+        const left=document.createElement('div'); left.textContent = t.name;
+        const right=document.createElement('div'); right.className='muted'; right.textContent = formatTime(t.start);
+        div.appendChild(left); div.appendChild(right); upcomingList.appendChild(div);
+      });
+      if(upcoming.length===0){ const p=document.createElement('div'); p.className='muted-sm'; p.textContent='No upcoming tasks'; upcomingList.appendChild(p); }
+    }
+
+    function updateNowView(){
+      const routine = currentRoutine();
+      const nowM = getNowMinutes();
+      let current = null;
+      let next = null;
+      if(routine){
+        for(const t of routine.tasks){
+          const s = timeToMinutes(t.start); const e = timeToMinutes(t.end);
+          if(nowM >= s && nowM < e){ current = t; break; }
+          if(s > nowM){ next = t; break; }
+        }
+      }
+      if(current){ nowTask.textContent = current.name; nowTime.textContent = `${formatTime(current.start)} → ${formatTime(current.end)}`; }
+      else if(next){ nowTask.textContent = 'No current task'; nowTime.textContent = `Next: ${next.name} • ${formatTime(next.start)}`; }
+      else { nowTask.textContent = 'No current task'; nowTime.textContent = 'You are between routines — consider adding a task'; }
+
+      // Keep list & upcoming in sync
+      renderTaskList();
+    }
+
+    function getNowMinutes(){ const d = new Date(); return d.getHours()*60 + d.getMinutes(); }
+    function timeToMinutes(t){ if(!t) return 0; const [hh,mm] = t.split(':').map(Number); return hh*60 + mm; }
+    function formatTime(t){
+      if(!t) return '--';
+      const [hh,mm] = t.split(':').map(Number);
+      if(settings.timeFormat === '24'){ return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; }
+      else { const am = hh < 12; const h12 = ((hh + 11) % 12) + 1; return `${h12}:${String(mm).padStart(2,'0')} ${am? 'AM':'PM'}`; }
+    }
+
+    // Add / Edit / Delete logic
+    function openAddTask(){ openTaskModal(); }
+    function openEditTask(taskId){ const routine = currentRoutine(); const t = routine.tasks.find(x=>x.id===taskId); openTaskModal(t); }
+
+    function openTaskModal(task=null){
+      const tpl = qs('#taskModalTpl'); const frag = tpl.content.cloneNode(true);
+      const backdrop = frag.querySelector('.modal-backdrop');
+      const title = frag.querySelector('#modalTitle');
+      const name = frag.querySelector('#taskName');
+      const startInput = frag.querySelector('#taskStart');
+      const endInput = frag.querySelector('#taskEnd');
+      const startBtn = frag.querySelector('#startTimeBtn');
+      const endBtn = frag.querySelector('#endTimeBtn');
+      const cancel = frag.querySelector('#modalCancel');
+      const save = frag.querySelector('#modalSave');
+
+      if(task){ title.textContent='Edit Task'; name.value = task.name; startInput.value = task.start; endInput.value = task.end; startBtn.textContent = formatTime(task.start); endBtn.textContent = formatTime(task.end); }
+      else { title.textContent='Add Task'; startBtn.textContent='Set start'; endBtn.textContent='Set end'; }
+
+      // wire up labelled buttons to open hidden native time inputs
+      startBtn.addEventListener('click', ()=> startInput.focus());
+      endBtn.addEventListener('click', ()=> endInput.focus());
+
+      // when native inputs change, reflect label text
+      startInput.addEventListener('input', ()=>{ if(startInput.value) startBtn.textContent = formatTime(startInput.value); });
+      endInput.addEventListener('input', ()=>{ if(endInput.value) endBtn.textContent = formatTime(endInput.value); });
+
+      cancel.addEventListener('click', ()=>{ backdrop.remove(); });
+      backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) backdrop.remove(); });
+
+      save.addEventListener('click', ()=>{
+        const nm = name.value.trim(); const st = startInput.value; const ed = endInput.value;
+        if(!nm || !st || !ed){ alert('Please provide a name, start and end time'); return; }
+        if(timeToMinutes(ed) <= timeToMinutes(st)){ alert('End time must be after start time'); return; }
+        const routine = currentRoutine();
+        if(task){
+          const tObj = routine.tasks.find(x=>x.id===task.id);
+          tObj.name = nm; tObj.start = st; tObj.end = ed;
+        } else {
+          routine.tasks.push({id: genId(), name:nm, start:st, end:ed});
+        }
+        saveState();
+        backdrop.remove();
+        // sort and animate
+        renderTaskList();
+        updateNowView();
+      });
+
+      document.body.appendChild(frag);
+    }
+
+    function deleteTask(id){
+      if(!confirm('Delete this task?')) return;
+      const routine = currentRoutine();
+      routine.tasks = routine.tasks.filter(t=>t.id!==id);
+      saveState();
+      renderAll();
+    }
+
+    // routines
+    function openNewRoutine(){
+      const tpl = qs('#routineModalTpl'); const frag = tpl.content.cloneNode(true);
+      const backdrop = frag.querySelector('.modal-backdrop');
+      const input = frag.querySelector('#routineName');
+      const cancel = frag.querySelector('#routineCancel');
+      const saveBtn = frag.querySelector('#routineSave');
+
+      cancel.addEventListener('click', ()=>backdrop.remove());
+      backdrop.addEventListener('click',(e)=>{ if(e.target===backdrop) backdrop.remove(); });
+
+      saveBtn.addEventListener('click', ()=>{
+        const name = input.value.trim(); if(!name) return alert('Please name the routine');
+        const r = {id: genId(), name, tasks: []};
+        state.routines.push(r); saveState();
+        settings.selectedRoutineId = r.id; saveSettings();
+        renderRoutineOptions(); renderAll(); backdrop.remove();
+      });
+      document.body.appendChild(frag);
+    }
+
+    function onRoutineChange(e){
+      settings.selectedRoutineId = e.target.value; saveSettings(); renderAll();
+    }
+
+    // ensure initial save
+    saveState(); saveSettings();
+
+  </script>
+</body>
+</html>
