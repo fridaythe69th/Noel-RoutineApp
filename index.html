@@ -2,34 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <!-- Disable zooming -->
+  <!-- lock scaling/disable zoom -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Today's Routine — Minimal</title>
+  <title>Today's Routine — Beta</title>
+
+  <!-- Google font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="manifest" href="manifest.json">
+
   <style>
+    /* ===== Reset & layout safety ===== */
     :root{
-      /* light */
-      --bg: #f6f7fb;
+      /* Pastel light palette */
+      --bg: #f7fafc;
       --panel: #ffffff;
       --muted: #6b7280;
       --text: #0f172a;
-      --accent: #4f46e5;
-      --accent-2: #7c3aed;
+      --accent: #7c8de6;    /* pastel indigo */
+      --accent-2: #a28be6;  /* pastel purple */
+      --success: #48c78e;
+      --danger: #fb7185;
       --glass: rgba(255,255,255,0.6);
-      --shadow: 0 6px 18px rgba(16,24,40,0.06);
-      --radius: 12px;
-      --gap: 12px;
+      --shadow: 0 8px 22px rgba(16,24,40,0.06);
+      --radius: 14px;
     }
     [data-theme="dark"] {
       --bg: #071025;
       --panel: #071025;
       --muted: #94a3b8;
       --text: #e6eef8;
-      --accent: #7c3aed;
-      --accent-2: #4f46e5;
-      --glass: rgba(255,255,255,0.04);
-      --shadow: 0 6px 18px rgba(2,6,23,0.6);
+      --accent: #5f6df3;
+      --accent-2: #8b5cf6;
+      --glass: rgba(255,255,255,0.03);
+      --shadow: 0 10px 30px rgba(2,6,23,0.6);
     }
 
     *{box-sizing:border-box}
@@ -42,25 +47,25 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       padding:12px;
+      overflow-x: hidden; /* prevent horizontal scroll */
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* App layout */
+    /* center container */
     .app {
       max-width:980px;
-      margin: 8px auto;
-      display: grid;
+      margin:10px auto;
+      display:grid;
       grid-template-columns: 1fr 320px;
-      gap: 16px;
+      gap:16px;
       align-items:start;
     }
 
-    /* Main panel */
     .panel {
       background: var(--panel);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 14px;
+      padding:14px;
     }
 
     /* Header */
@@ -71,217 +76,137 @@
       justify-content:space-between;
       margin-bottom:12px;
     }
-    .brand {
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
+    .brand { display:flex; gap:12px; align-items:center; }
     .hamburger-btn {
-      display:inline-grid;
-      place-items:center;
-      width:42px;
-      height:42px;
-      border-radius:10px;
-      border:1px solid rgba(0,0,0,0.04);
-      background: transparent;
-      cursor:pointer;
-      font-size:20px;
-      color:var(--text);
+      display:inline-grid; place-items:center;
+      width:44px; height:44px; border-radius:10px;
+      border:1px solid rgba(0,0,0,0.04); background:transparent;
+      cursor:pointer; font-size:20px; color:var(--text);
     }
-    h1 {
-      font-size:16px;
-      margin:0;
-    }
-    .muted-sm {
-      color:var(--muted);
-      font-size:13px;
-      margin-top:4px;
-    }
+    h1{ font-size:16px; margin:0; }
+    .muted-sm{ color:var(--muted); font-size:13px; margin-top:4px; }
 
     .controls { display:flex; gap:8px; align-items:center; }
     .primary {
       background: linear-gradient(90deg,var(--accent),var(--accent-2));
-      color:#fff;
-      border:none;
-      padding:10px 14px;
-      border-radius:10px;
-      font-weight:600;
-      cursor:pointer;
+      color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:600; cursor:pointer;
     }
 
-    /* Now / Upcoming / Today's sections */
+    /* Now card */
     .now-card {
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      padding:18px;
-      border-radius:12px;
-      background: linear-gradient(90deg, rgba(79,70,229,0.06), rgba(124,58,237,0.04));
-      margin-bottom:10px;
-    }
-    .now-title{ font-size:12px; color:var(--muted) }
-    .now-task{ font-size:18px; font-weight:700 }
-    .now-time{ font-size:13px; color:var(--muted) }
-
-    /* Upcoming card (simple list) */
-    .upcoming-card {
+      padding:16px; border-radius:12px;
+      background: linear-gradient(90deg, rgba(124,139,230,0.06), rgba(162,139,230,0.04));
       margin-bottom:12px;
-      border-radius:12px;
-      overflow:hidden;
     }
-    .upcoming-card .panel {
-      padding:12px;
-    }
-    .up-title {
-      font-weight:700;
-      margin:0 0 8px 0;
-    }
-    .up-list { display:flex; flex-direction:column; gap:8px; }
+    .now-title{ font-size:12px; color:var(--muted); margin-bottom:6px; }
+    .now-task{ font-size:18px; font-weight:700; }
+    .now-time{ font-size:13px; color:var(--muted); margin-top:6px; }
+
+    /* Upcoming */
+    .upcoming-card { margin-bottom:12px; }
+    .up-panel { padding:12px; border-radius:12px; background: linear-gradient(180deg, rgba(0,0,0,0.01), transparent); box-shadow:none; }
+    .up-title{ font-weight:700; }
+    .up-list { display:flex; flex-direction:column; gap:8px; margin-top:6px; }
     .up-item {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:8px 10px;
-      border-radius:8px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.01), transparent);
+      display:flex; justify-content:space-between; align-items:center;
+      padding:8px 10px; border-radius:8px;
+      background: rgba(0,0,0,0.02);
     }
-    .up-item .muted { font-size:13px; color:var(--muted) }
+    .up-item .muted { color:var(--muted); font-size:13px; }
 
-    /* Today's task container - sectioned style */
+    /* Today's tasks (sectioned) */
     .today-panel {
-      border-radius:12px;
-      padding:8px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
+      border-radius:12px; padding:8px; background: var(--panel); box-shadow: var(--shadow);
     }
-    .today-header {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:10px 6px;
-    }
-    .divider { height:1px; background:rgba(0,0,0,0.04); margin:6px 0; border-radius:4px }
+    .today-header { display:flex; justify-content:space-between; align-items:center; padding:10px 6px; }
+    .divider { height:1px; background: rgba(0,0,0,0.04); margin:6px 0; border-radius:4px; }
 
-    .list-wrap {
-      max-height: calc(60vh);
-      overflow:auto;
-      padding:8px;
-    }
+    .list-wrap { max-height: calc(58vh); overflow:auto; padding:8px; }
 
-    /* Task row - minimal/sectioned */
+    /* Task row: minimal + pastel accent for time pill */
     .task-item {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:10px;
-      border-radius:10px;
-      background: transparent;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:10px; border-radius:10px; background: transparent;
       border-bottom: 1px solid rgba(0,0,0,0.04);
       transition: transform .25s ease, opacity .25s ease;
     }
-    .task-item:last-child { border-bottom: none; }
+    .task-item:last-child { border-bottom:none; }
 
-    .task-left {
-      display:flex;
-      gap:10px;
-      align-items:center;
-      min-width:0;
-    }
+    .task-left { display:flex; gap:10px; align-items:center; min-width:0; }
     .time-pill {
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      background: rgba(79,70,229,0.12);
-      color: var(--accent-2);
-      font-weight:600;
-      white-space:nowrap;
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      background: linear-gradient(90deg, rgba(124,139,230,0.12), rgba(162,139,230,0.08));
+      color:var(--accent-2); font-weight:600; white-space:nowrap;
     }
     .task-name { font-weight:600; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-    /* menu button */
+    /* actions & 3-dot menu */
     .task-actions { display:flex; align-items:center; gap:6px; }
-    .menu-btn {
-      background:none;
-      border:none;
-      font-size:20px;
-      cursor:pointer;
-      padding:6px;
-      border-radius:8px;
-      color:var(--muted);
-    }
-    .menu-btn:active, .menu-btn:hover { background: rgba(0,0,0,0.03); color:var(--text) }
+    .menu-btn { background:none; border:none; font-size:20px; cursor:pointer; color:var(--muted); padding:6px; border-radius:8px; }
+    .menu-btn:hover { background: rgba(0,0,0,0.03); color:var(--text); }
 
-    /* dropdown */
+    /* floating dropdown */
     .task-menu {
-      position: absolute;
-      background: var(--panel);
-      border-radius:10px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      z-index:999;
-      min-width:120px;
+      position: absolute; background: var(--panel); border-radius:10px; box-shadow: var(--shadow);
+      z-index:999; overflow:hidden; min-width:130px;
     }
-    .task-menu-item {
-      padding:10px 12px;
-      cursor:pointer;
-      font-size:14px;
-      color:var(--text);
-    }
-    .task-menu-item:hover { background: rgba(0,0,0,0.04); }
+    .task-menu-item { padding:10px 12px; cursor:pointer; font-size:14px; color:var(--text); }
+    .task-menu-item:hover{ background: rgba(0,0,0,0.04); }
 
-    /* Animations for adding/removing */
+    /* Modal overlay & content */
+    .modal-overlay {
+      position: fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background: rgba(2,6,23,0.45); z-index:300;
+    }
+    .modal-overlay.open { display:flex; }
+
+    .modal {
+      width: min(560px, calc(100% - 32px));
+      background: var(--panel); border-radius:12px; padding:16px; box-shadow: var(--shadow);
+      transform: translateY(-8px); opacity:0; transition: transform .22s ease, opacity .22s ease;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); opacity:1; }
+
+    .modal h3 { margin:0 0 8px 0; font-size:16px; }
+    .modal .row { display:flex; gap:8px; margin-top:10px; }
+    .modal input[type="text"], .modal input[type="time"], .modal select {
+      width:100%; padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:transparent; color:var(--text);
+    }
+
+    .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
+
+    /* Add/remove animations */
     .fade-in { animation: fadeIn .28s ease both; }
     .fade-out { animation: fadeOut .24s ease both; }
-    @keyframes fadeIn { from { opacity:0; transform: translateY(6px) } to { opacity:1; transform:none } }
-    @keyframes fadeOut { from { opacity:1; transform:none } to { opacity:0; transform: translateY(-6px) } }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(8px) } to { opacity:1; transform:none } }
+    @keyframes fadeOut { from { opacity:1; transform:none } to { opacity:0; transform: translateY(-8px) } }
 
     /* Drawer */
     .drawer {
-      position: fixed;
-      top:0;
-      left:-300px;
-      width:300px;
-      height:100%;
-      background: var(--panel);
-      box-shadow: 2px 0 20px rgba(0,0,0,0.12);
-      z-index:150;
-      transition: left .28s ease;
-      padding:16px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
+      position: fixed; top:0; left:-320px; width:320px; height:100%; background:var(--panel);
+      box-shadow: 2px 0 20px rgba(0,0,0,0.12); z-index:200; transition:left .28s ease; padding:16px;
+      display:flex; flex-direction:column; gap:12px;
     }
-    .drawer.open { left:0 }
+    .drawer.open { left:0; }
     .drawer-header { display:flex; justify-content:space-between; align-items:center; }
-    .close-btn { background:none; border:none; font-size:22px; cursor:pointer; }
     .drawer-overlay {
-      position: fixed;
-      inset:0;
-      background: rgba(0,0,0,0.4);
-      opacity:0;
-      visibility:hidden;
-      transition: opacity .2s ease;
-      z-index:140;
+      position: fixed; inset:0; background: rgba(0,0,0,0.4); opacity:0; visibility:hidden; z-index:190; transition: opacity .2s;
     }
-    .drawer-overlay.active { opacity:1; visibility:visible }
+    .drawer-overlay.active { opacity:1; visibility:visible; }
 
-    label { display:block; font-size:13px; margin-bottom:6px; color:var(--muted) }
-    select { width:100%; padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:transparent; color:var(--text) }
+    label{ display:block; font-size:13px; margin-bottom:6px; color:var(--muted) }
+    select{ width:100%; padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:transparent; color:var(--text) }
 
-    /* Sidebar (right column) */
-    aside.sidebar {
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-    .mini { font-size:13px }
+    /* Sidebar */
+    aside.sidebar { display:flex; flex-direction:column; gap:12px; }
 
     /* Responsive */
     @media (max-width:880px){
       .app { grid-template-columns: 1fr; padding:0 8px; }
       aside.sidebar { order:2 }
-      .list-wrap { max-height: calc(50vh) }
+      .list-wrap { max-height: calc(46vh); }
+      .drawer { width: 84%; left: -84%; }
+      .drawer.open { left:0; }
     }
   </style>
 </head>
@@ -292,9 +217,11 @@
         <header class="app-header">
           <div class="brand">
             <button id="menuButton" class="hamburger-btn" aria-label="Open settings">
-              <!-- simple hamburger -->
-              <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h16M1 7h16M1 13h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1h16M1 7h16M1 13h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
             </button>
+
             <div>
               <h1>Today's Routine</h1>
               <div id="currentDate" class="muted-sm">Loading date...</div>
@@ -313,20 +240,18 @@
           <div class="now-time muted-sm" id="nowTime">--</div>
         </div>
 
-        <!-- Upcoming (moved above today's list) -->
+        <!-- Upcoming -->
         <div class="upcoming-card">
-          <div class="panel" style="padding:12px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div class="up-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center">
               <div class="up-title">Upcoming</div>
               <div class="muted-sm">Next few</div>
             </div>
-            <div class="up-list" id="upcomingList">
-              <!-- upcoming items -->
-            </div>
+            <div class="up-list" id="upcomingList"></div>
           </div>
         </div>
 
-        <!-- Today's tasks (sectioned style) -->
+        <!-- Today's tasks -->
         <div class="today-panel" aria-labelledby="todayTitle">
           <div class="today-header">
             <div style="font-weight:700">Today's tasks</div>
@@ -334,12 +259,9 @@
           </div>
           <div class="divider"></div>
           <div class="list-wrap">
-            <div class="task-list" id="taskList">
-              <!-- tasks injected by JS -->
-            </div>
+            <div class="task-list" id="taskList"></div>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -362,58 +284,12 @@
     </aside>
   </div>
 
-  <!-- Task modal template -->
-  <template id="taskModalTpl">
-    <div class="modal-backdrop">
-      <div class="modal">
-        <h3 id="modalTitle">Add Task</h3>
-        <div style="margin-top:12px">
-          <div class="form-row" style="margin-bottom:10px">
-            <input type="text" id="taskName" placeholder="Task name (e.g., Office work)" style="flex:1;width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)" />
-          </div>
-
-          <div style="display:flex;gap:10px;align-items:center">
-            <div style="flex:1">
-              <div class="muted-sm" style="margin-bottom:6px;font-weight:600">Start time</div>
-              <div class="time-control">
-                <button class="time-button" id="startTimeBtn" type="button">Set start</button>
-                <input class="hidden-time-input" id="taskStart" type="time" />
-              </div>
-            </div>
-
-            <div style="flex:1">
-              <div class="muted-sm" style="margin-bottom:6px;font-weight:600">End time</div>
-              <div class="time-control">
-                <button class="time-button" id="endTimeBtn" type="button">Set end</button>
-                <input class="hidden-time-input" id="taskEnd" type="time" />
-              </div>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-            <button class="btn" id="modalCancel">Cancel</button>
-            <button class="primary" id="modalSave">Save</button>
-          </div>
-        </div>
-      </div>
+  <!-- Modal overlay (reused for Add/Edit Task & New Routine) -->
+  <div id="modalOverlay" class="modal-overlay" role="dialog" aria-hidden="true">
+    <div class="modal" id="modalContent" role="document">
+      <!-- content injected by JS -->
     </div>
-  </template>
-
-  <!-- Routine modal -->
-  <template id="routineModalTpl">
-    <div class="modal-backdrop">
-      <div class="modal">
-        <h3>Create Routine</h3>
-        <div style="margin-top:12px">
-          <input type="text" id="routineName" placeholder="Routine name (e.g., Weekends)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)" />
-          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-            <button class="btn" id="routineCancel">Cancel</button>
-            <button class="btn" id="routineSave">Create</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
+  </div>
 
   <!-- Drawer & overlay -->
   <div id="settingsDrawer" class="drawer" aria-hidden="true">
@@ -440,22 +316,24 @@
       </div>
     </div>
   </div>
-  <div id="drawerOverlay" class="drawer-overlay"></div>
+  <div id="drawerOverlay" class="drawer-overlay" aria-hidden="true"></div>
 
   <script>
-    // Keys
+    /* -------------------------
+       Data / Storage / Helpers
+    ------------------------- */
     const KEY = 'adhd_routines_v1';
     const KEY_SETTINGS = 'adhd_routines_settings_v1';
 
-    // utils
-    const el = s => document.querySelector(s);
+    const qs = s => document.querySelector(s);
     const qsa = s => Array.from(document.querySelectorAll(s));
-    const genId = () => 'id_'+Math.random().toString(36).slice(2,9);
+    const genId = () => 'id_' + Math.random().toString(36).slice(2,9);
 
-    // Default state
     const defaultData = {
-      routines:[
-        {id: genId(), name: 'Weekdays', tasks:[
+      routines:[{
+        id: genId(),
+        name: 'Weekdays',
+        tasks:[
           {id: genId(), name:'Wake up',start:'07:00',end:'07:30'},
           {id: genId(), name:'Morning routine',start:'07:30',end:'08:15'},
           {id: genId(), name:'Commute / Prep',start:'08:15',end:'09:30'},
@@ -463,14 +341,15 @@
           {id: genId(), name:'Lunch',start:'13:00',end:'14:00'},
           {id: genId(), name:'Afternoon work',start:'14:00',end:'18:00'},
           {id: genId(), name:'Evening unwind',start:'20:00',end:'22:00'},
-        ]}
-      ]
+        ]
+      }]
     };
+
     const defaultSettings = { timeFormat:'12', theme:'light', selectedRoutineId:null };
 
-    function loadState(){ try{ const s = localStorage.getItem(KEY); return s?JSON.parse(s):null }catch(e){return null} }
+    function loadState(){ try { const s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null } catch(e){ return null } }
     function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)) }
-    function loadSettings(){ try{ const s = localStorage.getItem(KEY_SETTINGS); return s?JSON.parse(s):null }catch(e){return null} }
+    function loadSettings(){ try { const s = localStorage.getItem(KEY_SETTINGS); return s ? JSON.parse(s) : null } catch(e){ return null } }
     function saveSettings(){ localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings)) }
 
     let state = loadState();
@@ -479,88 +358,39 @@
     if(!settings){ settings = defaultSettings; saveSettings(); }
     if(!settings.selectedRoutineId){ settings.selectedRoutineId = state.routines[0].id; saveSettings(); }
 
-    // Elements
-    const routineSelect = el('#routineSelect');
-    const taskList = el('#taskList');
-    const upcomingList = el('#upcomingList');
-    const nowTask = el('#nowTask');
-    const nowTime = el('#nowTime');
-    const startOfDayEl = el('#startOfDay');
-    const endOfDayEl = el('#endOfDay');
-    const currentDateEl = el('#currentDate');
+    /* -------------------------
+       Elements
+    ------------------------- */
+    const routineSelect = qs('#routineSelect');
+    const taskList = qs('#taskList');
+    const upcomingList = qs('#upcomingList');
+    const nowTask = qs('#nowTask');
+    const nowTime = qs('#nowTime');
+    const startOfDayEl = qs('#startOfDay');
+    const endOfDayEl = qs('#endOfDay');
+    const currentDateEl = qs('#currentDate');
 
-    // Drawer elements
-    const menuButton = el('#menuButton');
-    const settingsDrawer = el('#settingsDrawer');
-    const drawerOverlay = el('#drawerOverlay');
-    const closeDrawer = el('#closeDrawer');
-    const themeSelect = el('#themeSelect');
-    const timeFormatSelect = el('#timeFormatSelect');
+    // drawer
+    const menuButton = qs('#menuButton');
+    const settingsDrawer = qs('#settingsDrawer');
+    const drawerOverlay = qs('#drawerOverlay');
+    const closeDrawer = qs('#closeDrawer');
+    const themeSelect = qs('#themeSelect');
+    const timeFormatSelect = qs('#timeFormatSelect');
 
-    // Init UI values
-    function applyTheme(t){ document.documentElement.setAttribute('data-theme', t==='dark'?'dark':'light') }
+    // modal
+    const modalOverlay = qs('#modalOverlay');
+    const modalContent = qs('#modalContent');
+
+    /* -------------------------
+       UI Initialization
+    ------------------------- */
+    function applyTheme(t){ document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light') }
     applyTheme(settings.theme);
     if(themeSelect) themeSelect.value = settings.theme;
     if(timeFormatSelect) timeFormatSelect.value = settings.timeFormat;
 
-    // Populate routines and render
-    function renderRoutineOptions(){
-      routineSelect.innerHTML = '';
-      state.routines.forEach(r => {
-        const opt = document.createElement('option');
-        opt.value = r.id; opt.textContent = r.name;
-        if(settings.selectedRoutineId===r.id) opt.selected = true;
-        routineSelect.appendChild(opt);
-      });
-    }
-
-    function currentRoutine(){ return state.routines.find(r=>r.id===settings.selectedRoutineId) || state.routines[0]; }
-
-    // Render all
-    renderRoutineOptions();
-    renderAll();
-
-    // Events: drawer
-    menuButton.addEventListener('click', () => {
-      settingsDrawer.classList.add('open');
-      drawerOverlay.classList.add('active');
-      settingsDrawer.setAttribute('aria-hidden','false');
-    });
-    closeDrawer.addEventListener('click', closeSettingsDrawer);
-    drawerOverlay.addEventListener('click', closeSettingsDrawer);
-    function closeSettingsDrawer(){
-      settingsDrawer.classList.remove('open');
-      drawerOverlay.classList.remove('active');
-      settingsDrawer.setAttribute('aria-hidden','true');
-    }
-
-    // Settings listeners
-    timeFormatSelect.addEventListener('change', (e)=>{
-      settings.timeFormat = e.target.value;
-      saveSettings();
-      renderAll();
-    });
-    themeSelect.addEventListener('change', (e)=>{
-      settings.theme = e.target.value;
-      saveSettings();
-      applyTheme(settings.theme);
-    });
-
-    // Routine select listener
-    routineSelect.addEventListener('change', (e)=>{
-      settings.selectedRoutineId = e.target.value;
-      saveSettings();
-      renderAll();
-    });
-
-    // Add task button
-    el('#add-task').addEventListener('click', openAddTask);
-    el('#newRoutine').addEventListener('click', openNewRoutine);
-
-    // Update every 30s for "now" accuracy
-    setInterval(updateNowView, 30000);
-
-    // Date display
+    // date
     function setCurrentDate(){
       const today = new Date();
       const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
@@ -568,33 +398,51 @@
     }
     setCurrentDate();
 
-    // Time helpers
-    function getNowMinutes(){ const d=new Date(); return d.getHours()*60 + d.getMinutes(); }
-    function timeToMinutes(t){ if(!t) return 0; const [hh,mm]=t.split(':').map(Number); return hh*60 + mm; }
+    // render routines options
+    function renderRoutineOptions(){
+      routineSelect.innerHTML = '';
+      state.routines.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id; opt.textContent = r.name;
+        if(settings.selectedRoutineId === r.id) opt.selected = true;
+        routineSelect.appendChild(opt);
+      });
+    }
+
+    function currentRoutine(){ return state.routines.find(r => r.id === settings.selectedRoutineId) || state.routines[0]; }
+
+    /* -------------------------
+       Time helpers
+    ------------------------- */
+    function getNowMinutes(){ const d = new Date(); return d.getHours()*60 + d.getMinutes() }
+    function timeToMinutes(t){ if(!t) return 0; const [hh,mm] = t.split(':').map(Number); return hh*60 + mm }
     function formatTime(t){
       if(!t) return '--';
       const [hh,mm] = t.split(':').map(Number);
       if(settings.timeFormat === '24') return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
-      const am = hh < 12; const h12 = ((hh + 11) % 12) + 1;
-      return `${h12}:${String(mm).padStart(2,'0')} ${am? 'AM' : 'PM'}`;
+      const am = hh < 12; const h12 = ((hh+11)%12)+1;
+      return `${h12}:${String(mm).padStart(2,'0')} ${am?'AM':'PM'}`;
     }
 
-    // Render functions
-    function renderAll(){ renderTaskList(); updateNowView(); renderUpcoming(); renderRoutineOptions(); }
+    /* -------------------------
+       Rendering
+    ------------------------- */
+    function renderAll(){ renderRoutineOptions(); renderTaskList(); renderUpcoming(); updateNowView(); }
 
     function renderUpcoming(){
       const routine = currentRoutine();
       upcomingList.innerHTML = '';
       if(!routine) return;
-      const nowM = getNowMinutes();
-      const upcoming = routine.tasks.filter(t => timeToMinutes(t.start) >= nowM).slice(0,6);
-      if(upcoming.length===0){
-        const p = document.createElement('div'); p.className='muted-sm'; p.textContent = 'No upcoming tasks'; upcomingList.appendChild(p); return;
+      const now = getNowMinutes();
+      const upcoming = routine.tasks.filter(t => timeToMinutes(t.start) >= now).slice(0,6);
+      if(upcoming.length === 0){
+        const p = document.createElement('div'); p.className='muted-sm'; p.textContent = 'No upcoming tasks';
+        upcomingList.appendChild(p); return;
       }
       upcoming.forEach(t => {
-        const row = document.createElement('div'); row.className='up-item';
+        const row = document.createElement('div'); row.className = 'up-item';
         const left = document.createElement('div'); left.textContent = t.name;
-        const right = document.createElement('div'); right.className='muted'; right.textContent = formatTime(t.start);
+        const right = document.createElement('div'); right.className = 'muted'; right.textContent = formatTime(t.start);
         row.appendChild(left); row.appendChild(right); upcomingList.appendChild(row);
       });
     }
@@ -603,49 +451,56 @@
       const routine = currentRoutine();
       if(!routine) return;
 
-      // sort
-      routine.tasks.sort((a,b)=> timeToMinutes(a.start) - timeToMinutes(b.start));
+      // sort by start
+      routine.tasks.sort((a,b) => timeToMinutes(a.start) - timeToMinutes(b.start));
 
-      // start/end
+      // update start/end
       if(routine.tasks.length){
         startOfDayEl.textContent = formatTime(routine.tasks[0].start);
         endOfDayEl.textContent = formatTime(routine.tasks[routine.tasks.length-1].end);
       } else { startOfDayEl.textContent='--'; endOfDayEl.textContent='--'; }
 
-      // snapshot for animation
+      // snapshot for reposition animation
       const oldNodes = Array.from(taskList.children);
-      const oldRects = oldNodes.map(n=>n.getBoundingClientRect());
+      const oldRects = oldNodes.map(n => n.getBoundingClientRect());
 
-      // clear
-      taskList.innerHTML='';
+      taskList.innerHTML = '';
 
       routine.tasks.forEach(task => {
-        const div = document.createElement('div'); div.className='task-item fade-in'; div.dataset.id = task.id;
-        const left = document.createElement('div'); left.className='task-left';
-        const timePill = document.createElement('div'); timePill.className='time-pill'; timePill.textContent = `${formatTime(task.start)} → ${formatTime(task.end)}`;
-        const name = document.createElement('div'); name.className='task-name'; name.textContent = task.name;
+        const row = document.createElement('div');
+        row.className = 'task-item fade-in';
+        row.dataset.id = task.id;
+
+        const left = document.createElement('div'); left.className = 'task-left';
+        const timePill = document.createElement('div'); timePill.className='time-pill';
+        timePill.textContent = `${formatTime(task.start)} → ${formatTime(task.end)}`;
+        const name = document.createElement('div'); name.className = 'task-name'; name.textContent = task.name;
+
         left.appendChild(timePill); left.appendChild(name);
 
-        const actions = document.createElement('div'); actions.className='task-actions';
-        const menuBtn = document.createElement('button'); menuBtn.className='menu-btn'; menuBtn.innerHTML = '&#8942;';
+        const actions = document.createElement('div'); actions.className = 'task-actions';
+        const menuBtn = document.createElement('button');
+        menuBtn.className = 'menu-btn';
+        menuBtn.innerHTML = '&#8942;';
         menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleTaskMenu(task.id, menuBtn); });
+
         actions.appendChild(menuBtn);
 
-        div.appendChild(left); div.appendChild(actions);
-        taskList.appendChild(div);
+        row.appendChild(left); row.appendChild(actions);
+        taskList.appendChild(row);
       });
 
-      // simple animated reposition (best-effort)
+      // simple reposition animation
       const newNodes = Array.from(taskList.children);
-      newNodes.forEach(node=>{
-        const old = oldNodes.find(n=>n.dataset.id === node.dataset.id);
+      newNodes.forEach(node => {
+        const old = oldNodes.find(n => n.dataset.id === node.dataset.id);
         if(old){
           const oldRect = oldRects[oldNodes.indexOf(old)];
           const newRect = node.getBoundingClientRect();
           const dy = oldRect.top - newRect.top;
           if(Math.abs(dy) > 1){
             node.style.transform = `translateY(${dy}px)`;
-            requestAnimationFrame(()=>{ node.style.transition='transform .35s cubic-bezier(.2,.9,.2,1)'; node.style.transform=''; });
+            requestAnimationFrame(() => { node.style.transition = 'transform .35s cubic-bezier(.2,.9,.2,1)'; node.style.transform = ''; });
           }
         }
       });
@@ -656,12 +511,12 @@
     function updateNowView(){
       const routine = currentRoutine();
       const nowM = getNowMinutes();
-      let current = null; let next = null;
+      let current = null, next = null;
       if(routine){
         for(const t of routine.tasks){
           const s = timeToMinutes(t.start), e = timeToMinutes(t.end);
           if(nowM >= s && nowM < e){ current = t; break; }
-          if(s > nowM){ next = t; break; }
+          if(s > nowM && !next){ next = t; }
         }
       }
       if(current){
@@ -674,69 +529,129 @@
         nowTask.textContent = 'No current task';
         nowTime.textContent = 'You are between routines — consider adding a task';
       }
-      // keep list synced
+      // keep list in sync
       renderTaskList();
     }
 
-    // Add / Edit / Delete logic
-    function openAddTask(){ openTaskModal(); }
-    function openEditTask(taskId){
-      const routine = currentRoutine();
-      const t = routine.tasks.find(x=>x.id===taskId);
-      openTaskModal(t);
-    }
+    /* -------------------------
+       Add / Edit / Delete (modals)
+    ------------------------- */
+    // Open add task
+    qs('#add-task').addEventListener('click', ()=> openTaskModal());
 
-    function openTaskModal(task=null){
-      const tpl = el('#taskModalTpl'); const frag = tpl.content.cloneNode(true);
-      const backdrop = frag.querySelector('.modal-backdrop');
-      const title = frag.querySelector('#modalTitle');
-      const name = frag.querySelector('#taskName');
-      const startInput = frag.querySelector('#taskStart');
-      const endInput = frag.querySelector('#taskEnd');
-      const startBtn = frag.querySelector('#startTimeBtn');
-      const endBtn = frag.querySelector('#endTimeBtn');
-      const cancel = frag.querySelector('#modalCancel');
-      const save = frag.querySelector('#modalSave');
+    function openTaskModal(task = null){
+      // build modal HTML
+      const isEdit = !!task;
+      modalContent.innerHTML = `
+        <h3>${isEdit ? 'Edit Task' : 'Add Task'}</h3>
+        <div class="row">
+          <input id="modalTaskName" type="text" placeholder="Task name (e.g., Office work)" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1">
+            <label style="margin-bottom:6px;font-size:13px;color:var(--muted)">Start time</label>
+            <input id="modalTaskStart" type="time" />
+          </div>
+          <div style="flex:1">
+            <label style="margin-bottom:6px;font-size:13px;color:var(--muted)">End time</label>
+            <input id="modalTaskEnd" type="time" />
+          </div>
+        </div>
+        <div class="actions">
+          <button id="modalCancel" class="btn">Cancel</button>
+          <button id="modalSave" class="primary">${isEdit ? 'Save' : 'Add'}</button>
+        </div>
+      `;
+      // prefill
+      if(isEdit){
+        qs('#modalTaskName').value = task.name;
+        qs('#modalTaskStart').value = task.start;
+        qs('#modalTaskEnd').value = task.end;
+      } else {
+        qs('#modalTaskName').value = '';
+        qs('#modalTaskStart').value = '';
+        qs('#modalTaskEnd').value = '';
+      }
 
-      if(task){ title.textContent='Edit Task'; name.value = task.name; startInput.value = task.start; endInput.value = task.end; startBtn.textContent = formatTime(task.start); endBtn.textContent = formatTime(task.end); }
-      else { title.textContent='Add Task'; startBtn.textContent='Set start'; endBtn.textContent='Set end'; }
+      // show modal
+      openModal();
 
-      startBtn.addEventListener('click', ()=> startInput.focus());
-      endBtn.addEventListener('click', ()=> endInput.focus());
-      startInput.addEventListener('input', ()=>{ if(startInput.value) startBtn.textContent = formatTime(startInput.value); });
-      endInput.addEventListener('input', ()=>{ if(endInput.value) endBtn.textContent = formatTime(endInput.value); });
-
-      cancel.addEventListener('click', ()=>{ backdrop.remove(); });
-      backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) backdrop.remove(); });
-
-      save.addEventListener('click', ()=>{
-        const nm = name.value.trim(); const st = startInput.value; const ed = endInput.value;
+      // events
+      qs('#modalCancel').addEventListener('click', closeModal);
+      qs('#modalSave').addEventListener('click', ()=>{
+        const nm = qs('#modalTaskName').value.trim();
+        const st = qs('#modalTaskStart').value;
+        const ed = qs('#modalTaskEnd').value;
         if(!nm || !st || !ed){ alert('Please provide a name, start and end time'); return; }
         if(timeToMinutes(ed) <= timeToMinutes(st)){ alert('End time must be after start time'); return; }
         const routine = currentRoutine();
-        if(task){
+        if(isEdit){
           const tObj = routine.tasks.find(x=>x.id===task.id);
           tObj.name = nm; tObj.start = st; tObj.end = ed;
         } else {
-          routine.tasks.push({id: genId(), name:nm, start:st, end:ed});
+          routine.tasks.push({ id: genId(), name: nm, start: st, end: ed });
         }
         saveState();
-        backdrop.remove();
-        renderTaskList();
-        updateNowView();
+        closeModal();
+        renderAll();
       });
-
-      document.body.appendChild(frag);
     }
+
+    // Open new routine modal
+    qs('#newRoutine').addEventListener('click', openNewRoutine);
+    function openNewRoutine(){
+      modalContent.innerHTML = `
+        <h3>Create Routine</h3>
+        <div class="row">
+          <input id="modalRoutineName" type="text" placeholder="Routine name (e.g., Weekends)" />
+        </div>
+        <div class="actions">
+          <button id="routineCancel" class="btn">Cancel</button>
+          <button id="routineSave" class="primary">Create</button>
+        </div>
+      `;
+      openModal();
+      qs('#routineCancel').addEventListener('click', closeModal);
+      qs('#routineSave').addEventListener('click', ()=>{
+        const name = qs('#modalRoutineName').value.trim();
+        if(!name) return alert('Please name the routine');
+        const r = { id: genId(), name, tasks: [] };
+        state.routines.push(r); saveState();
+        settings.selectedRoutineId = r.id; saveSettings();
+        closeModal();
+        renderAll();
+      });
+    }
+
+    // modal open/close helpers
+    function openModal(){
+      modalOverlay.classList.add('open');
+      modalOverlay.setAttribute('aria-hidden','false');
+      // trap focus? minimal approach: focus first input if exists
+      setTimeout(()=> {
+        const firstInput = modalContent.querySelector('input,select,button');
+        if(firstInput) firstInput.focus();
+      }, 120);
+    }
+    function closeModal(){
+      modalOverlay.classList.remove('open');
+      modalOverlay.setAttribute('aria-hidden','true');
+      modalContent.innerHTML = '';
+    }
+    // clicking overlay closes modal (but not clicks inside)
+    modalOverlay.addEventListener('click', (e) => {
+      if(e.target === modalOverlay) closeModal();
+    });
+
+    // Edit & delete from menu will call openTaskModal / deleteTask
 
     function deleteTask(id){
       if(!confirm('Delete this task?')) return;
       const routine = currentRoutine();
-      // animate removal
       const node = taskList.querySelector(`[data-id="${id}"]`);
       if(node){
         node.classList.add('fade-out');
-        node.addEventListener('animationend', ()=> {
+        node.addEventListener('animationend', () => {
           routine.tasks = routine.tasks.filter(t=>t.id!==id);
           saveState();
           renderAll();
@@ -748,30 +663,11 @@
       }
     }
 
-    // routines
-    function openNewRoutine(){
-      const tpl = el('#routineModalTpl'); const frag = tpl.content.cloneNode(true);
-      const backdrop = frag.querySelector('.modal-backdrop');
-      const input = frag.querySelector('#routineName');
-      const cancel = frag.querySelector('#routineCancel');
-      const saveBtn = frag.querySelector('#routineSave');
-
-      cancel.addEventListener('click', ()=>backdrop.remove());
-      backdrop.addEventListener('click',(e)=>{ if(e.target===backdrop) backdrop.remove(); });
-
-      saveBtn.addEventListener('click', ()=>{
-        const name = input.value.trim(); if(!name) return alert('Please name the routine');
-        const r = {id: genId(), name, tasks: []};
-        state.routines.push(r); saveState();
-        settings.selectedRoutineId = r.id; saveSettings();
-        renderRoutineOptions(); renderAll(); backdrop.remove();
-      });
-      document.body.appendChild(frag);
-    }
-
-    // Toggle task menu
+    /* -------------------------
+       Task menu (3-dot) dropdown
+    ------------------------- */
     function toggleTaskMenu(taskId, button){
-      // close existing
+      // close any
       qsa('.task-menu').forEach(m => m.remove());
 
       const menu = document.createElement('div');
@@ -779,38 +675,83 @@
       menu.innerHTML = `<div class="task-menu-item" data-action="edit">Edit</div><div class="task-menu-item" data-action="delete">Delete</div>`;
       document.body.appendChild(menu);
 
-      // position under button, keep on-screen
+      // position near button, keep inside viewport
       const rect = button.getBoundingClientRect();
-      const left = Math.max(8, rect.left + window.scrollX - 110);
+      const left = Math.max(8, rect.left + window.scrollX - 120);
       const top = rect.bottom + window.scrollY + 8;
-      menu.style.left = `${left}px`;
-      menu.style.top = `${top}px`;
+      menu.style.left = left + 'px';
+      menu.style.top = top + 'px';
 
       menu.querySelector('[data-action="edit"]').addEventListener('click', ()=>{
-        openEditTask(taskId); menu.remove();
+        const routine = currentRoutine();
+        const t = routine.tasks.find(x => x.id === taskId);
+        if(t) openTaskModal(t);
+        menu.remove();
       });
       menu.querySelector('[data-action="delete"]').addEventListener('click', ()=>{
-        deleteTask(taskId); menu.remove();
+        deleteTask(taskId);
+        menu.remove();
       });
 
       // close on outside click
-      setTimeout(()=>{ // delay to avoid immediate close on same click
+      setTimeout(()=> {
         document.addEventListener('click', ()=> menu.remove(), { once:true });
       }, 10);
     }
 
-    // initial save to ensure keys exist
+    /* -------------------------
+       Drawer logic & settings
+    ------------------------- */
+    menuButton.addEventListener('click', ()=>{
+      settingsDrawer.classList.add('open');
+      drawerOverlay.classList.add('active');
+      settingsDrawer.setAttribute('aria-hidden','false');
+    });
+    function closeSettingsDrawer(){
+      settingsDrawer.classList.remove('open');
+      drawerOverlay.classList.remove('active');
+      settingsDrawer.setAttribute('aria-hidden','true');
+    }
+    closeDrawer.addEventListener('click', closeSettingsDrawer);
+    drawerOverlay.addEventListener('click', closeSettingsDrawer);
+
+    // settings listeners (drawer only)
+    timeFormatSelect.addEventListener('change', (e) => {
+      settings.timeFormat = e.target.value;
+      saveSettings();
+      renderAll();
+    });
+    themeSelect.addEventListener('change', (e) => {
+      settings.theme = e.target.value;
+      saveSettings();
+      applyTheme(settings.theme);
+    });
+
+    // routine select change
+    routineSelect.addEventListener('change', (e) => {
+      settings.selectedRoutineId = e.target.value;
+      saveSettings();
+      renderAll();
+    });
+
+    /* -------------------------
+       Initialise & update loop
+    ------------------------- */
+    // ensure keys exist
     saveState(); saveSettings();
 
-    // Register service worker (if it exists)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(()=> console.log('SW registered'))
-        .catch(()=> console.log('SW failed'));
+    // SW registration (if exists)
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('./service-worker.js').then(()=>console.log('SW registered')).catch(()=>console.log('SW fail'));
     }
 
-    // Kick initial render
+    // periodic updates for "now"
+    setInterval(updateNowView, 30000);
+
+    // initial render
     renderAll();
+
   </script>
 </body>
 </html>
+
