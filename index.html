@@ -38,7 +38,7 @@
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{height:100%; overflow-x: hidden;} /* <- fix horizontal overflow on html + body */
     body{
       margin:0;
       font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -47,7 +47,6 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       padding:12px;
-      overflow-x: hidden; /* prevent horizontal scroll */
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -169,7 +168,7 @@
 
     .modal h3 { margin:0 0 8px 0; font-size:16px; }
     .modal .row { display:flex; gap:8px; margin-top:10px; }
-    .modal input[type="text"], .modal input[type="time"], .modal select {
+    .modal input[type="text"], .modal select {
       width:100%; padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:transparent; color:var(--text);
     }
 
@@ -200,10 +199,15 @@
     /* Sidebar */
     aside.sidebar { display:flex; flex-direction:column; gap:12px; }
 
-    /* Responsive */
+    /* Responsive adjustments (fix scaling & center) */
     @media (max-width:880px){
-      .app { grid-template-columns: 1fr; padding:0 8px; }
-      aside.sidebar { order:2 }
+      .app {
+        grid-template-columns: 1fr;
+        margin: 0 auto;           /* center and remove extra offsets */
+        max-width: 100%;
+        padding: 0 8px;          /* small side padding */
+      }
+      aside.sidebar { order:2; width:100%; }
       .list-wrap { max-height: calc(46vh); }
       .drawer { width: 84%; left: -84%; }
       .drawer.open { left:0; }
@@ -286,9 +290,7 @@
 
   <!-- Modal overlay (reused for Add/Edit Task & New Routine) -->
   <div id="modalOverlay" class="modal-overlay" role="dialog" aria-hidden="true">
-    <div class="modal" id="modalContent" role="document">
-      <!-- content injected by JS -->
-    </div>
+    <div class="modal" id="modalContent" role="document"></div>
   </div>
 
   <!-- Drawer & overlay -->
@@ -535,7 +537,124 @@
 
     /* -------------------------
        Add / Edit / Delete (modals)
+       --- with custom time pickers
     ------------------------- */
+    // helper: create time picker selects inside a container selector
+    function createTimePicker(containerSelector, initTime){
+      const container = document.querySelector(containerSelector);
+      container.innerHTML = ''; // clear
+
+      // hour select
+      const hourSel = document.createElement('select');
+      hourSel.className = 'time-select';
+      hourSel.style.width = '100%';
+
+      // minute select
+      const minuteSel = document.createElement('select');
+      minuteSel.className = 'time-select';
+      minuteSel.style.width = '100%';
+
+      // am/pm for 12hr
+      let ampmSel = null;
+
+      if(settings.timeFormat === '24'){
+        for(let h=0; h<24; h++){
+          const opt = document.createElement('option');
+          opt.value = String(h).padStart(2,'0');
+          opt.textContent = String(h).padStart(2,'0');
+          hourSel.appendChild(opt);
+        }
+      } else {
+        for(let h=1; h<=12; h++){
+          const opt = document.createElement('option');
+          opt.value = String(h).padStart(2,'0');
+          opt.textContent = String(h);
+          hourSel.appendChild(opt);
+        }
+        ampmSel = document.createElement('select');
+        ampmSel.className = 'time-select';
+        ampmSel.style.width = '100%';
+        const o1 = document.createElement('option'); o1.value='AM'; o1.textContent='AM';
+        const o2 = document.createElement('option'); o2.value='PM'; o2.textContent='PM';
+        ampmSel.appendChild(o1); ampmSel.appendChild(o2);
+      }
+
+      // minutes 00 - 59
+      for(let m=0; m<60; m++){
+        const opt = document.createElement('option');
+        opt.value = String(m).padStart(2,'0');
+        opt.textContent = String(m).padStart(2,'0');
+        minuteSel.appendChild(opt);
+      }
+
+      // layout: columns stack mobile -> we will append hour/minute/ampm
+      const wrap = document.createElement('div');
+      wrap.style.display = 'flex';
+      wrap.style.gap = '8px';
+      wrap.style.alignItems = 'center';
+
+      hourSel.style.flex = '1';
+      minuteSel.style.flex = '1';
+
+      wrap.appendChild(hourSel);
+      wrap.appendChild(minuteSel);
+      if(ampmSel){ ampmSel.style.flex='0.7'; wrap.appendChild(ampmSel); }
+
+      container.appendChild(wrap);
+
+      // prefill if initTime given (initTime stored as "HH:MM" 24h)
+      if(initTime){
+        const [hhStr, mmStr] = initTime.split(':');
+        const hh = Number(hhStr);
+        const mm = String(mmStr).padStart(2,'0');
+        if(settings.timeFormat === '24'){
+          hourSel.value = String(hh).padStart(2,'0');
+        } else {
+          const am = hh < 12;
+          let h12 = ((hh + 11) % 12) + 1; // convert 24->12
+          hourSel.value = String(h12).padStart(2,'0');
+          ampmSel.value = am ? 'AM' : 'PM';
+        }
+        minuteSel.value = mm;
+      } else {
+        // default to common times (current time rounded)
+        const now = new Date();
+        let hh = now.getHours();
+        let mm = now.getMinutes();
+        mm = String(mm).padStart(2,'0');
+        if(settings.timeFormat === '24'){
+          hourSel.value = String(hh).padStart(2,'0');
+        } else {
+          const am = hh < 12;
+          let h12 = ((hh + 11) % 12) + 1;
+          hourSel.value = String(h12).padStart(2,'0');
+          ampmSel.value = am ? 'AM' : 'PM';
+        }
+        minuteSel.value = mm;
+      }
+
+      return { hourSel, minuteSel, ampmSel };
+    }
+
+    // convert picker values to 24hr "HH:MM"
+    function pickerTo24(timePickerObj){
+      const hhRaw = timePickerObj.hourSel.value;
+      const mmRaw = timePickerObj.minuteSel.value;
+      if(settings.timeFormat === '24'){
+        return `${String(hhRaw).padStart(2,'0')}:${String(mmRaw).padStart(2,'0')}`;
+      } else {
+        // hhRaw is 01-12, ampm decides
+        let hh = Number(hhRaw);
+        const isPM = timePickerObj.ampmSel && timePickerObj.ampmSel.value === 'PM';
+        if(hh === 12){
+          hh = isPM ? 12 : 0;
+        } else {
+          hh = isPM ? hh + 12 : hh;
+        }
+        return `${String(hh).padStart(2,'0')}:${String(mmRaw).padStart(2,'0')}`;
+      }
+    }
+
     // Open add task
     qs('#add-task').addEventListener('click', ()=> openTaskModal());
 
@@ -550,11 +669,11 @@
         <div class="row" style="margin-top:10px">
           <div style="flex:1">
             <label style="margin-bottom:6px;font-size:13px;color:var(--muted)">Start time</label>
-            <input id="modalTaskStart" type="time" />
+            <div id="modalStartPicker"></div>
           </div>
           <div style="flex:1">
             <label style="margin-bottom:6px;font-size:13px;color:var(--muted)">End time</label>
-            <input id="modalTaskEnd" type="time" />
+            <div id="modalEndPicker"></div>
           </div>
         </div>
         <div class="actions">
@@ -562,16 +681,13 @@
           <button id="modalSave" class="primary">${isEdit ? 'Save' : 'Add'}</button>
         </div>
       `;
-      // prefill
-      if(isEdit){
-        qs('#modalTaskName').value = task.name;
-        qs('#modalTaskStart').value = task.start;
-        qs('#modalTaskEnd').value = task.end;
-      } else {
-        qs('#modalTaskName').value = '';
-        qs('#modalTaskStart').value = '';
-        qs('#modalTaskEnd').value = '';
-      }
+
+      // create pickers
+      const startPickerObj = createTimePicker('#modalStartPicker', task ? task.start : null);
+      const endPickerObj = createTimePicker('#modalEndPicker', task ? task.end : null);
+
+      // prefill name
+      if(isEdit) qs('#modalTaskName').value = task.name; else qs('#modalTaskName').value = '';
 
       // show modal
       openModal();
@@ -580,8 +696,8 @@
       qs('#modalCancel').addEventListener('click', closeModal);
       qs('#modalSave').addEventListener('click', ()=>{
         const nm = qs('#modalTaskName').value.trim();
-        const st = qs('#modalTaskStart').value;
-        const ed = qs('#modalTaskEnd').value;
+        const st = pickerTo24(startPickerObj);
+        const ed = pickerTo24(endPickerObj);
         if(!nm || !st || !ed){ alert('Please provide a name, start and end time'); return; }
         if(timeToMinutes(ed) <= timeToMinutes(st)){ alert('End time must be after start time'); return; }
         const routine = currentRoutine();
@@ -627,7 +743,6 @@
     function openModal(){
       modalOverlay.classList.add('open');
       modalOverlay.setAttribute('aria-hidden','false');
-      // trap focus? minimal approach: focus first input if exists
       setTimeout(()=> {
         const firstInput = modalContent.querySelector('input,select,button');
         if(firstInput) firstInput.focus();
@@ -642,8 +757,6 @@
     modalOverlay.addEventListener('click', (e) => {
       if(e.target === modalOverlay) closeModal();
     });
-
-    // Edit & delete from menu will call openTaskModal / deleteTask
 
     function deleteTask(id){
       if(!confirm('Delete this task?')) return;
@@ -754,4 +867,3 @@
   </script>
 </body>
 </html>
-
