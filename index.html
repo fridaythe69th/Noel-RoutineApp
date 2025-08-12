@@ -265,6 +265,63 @@ body {
   opacity: 1;
   visibility: visible;
 }
+/* Modern task card styling */
+.task-item {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-pill {
+  font-size: 12px;
+  background: rgba(0,0,0,0.04);
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.task-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Menu button */
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Dropdown menu */
+.task-menu {
+  position: absolute;
+  background: var(--card);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  z-index: 999;
+}
+
+.task-menu-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.task-menu-item:hover {
+  background: rgba(0,0,0,0.06);
+}    
 </style>
 
 <link rel="manifest" href="manifest.json">
@@ -313,27 +370,27 @@ body {
         <div class="now-title">Happening now</div>
         <div class="now-task" id="nowTask">No task — relax or add one</div>
         <div class="now-time muted-sm" id="nowTime">--</div>
-      </div>
+      </div><!-- Upcoming section moved here -->
+<div class="upcoming-card">
+  <div class="up-title">Upcoming</div>
+  <div class="up-list" id="upcomingList">
+    <!-- upcoming tasks short list -->
+  </div>
+</div>
 
-      <div class="panel" style="padding:12px; margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div class="muted-sm">Today's tasks</div>
-          <div class="muted-sm">Start: <span id="startOfDay">--</span> • End: <span id="endOfDay">--</span></div>
-        </div>
-        <div class="divider"></div>
-        <div class="list-wrap">
-          <div class="task-list" id="taskList">
-            <!-- tasks injected here -->
-          </div>
-        </div>
-      </div>
-
-      <div class="upcoming-card">
-        <div class="up-title">Upcoming</div>
-        <div class="up-list" id="upcomingList">
-          <!-- upcoming tasks short list -->
-        </div>
-      </div>
+<!-- Today's tasks now comes after Upcoming -->
+<div class="panel" style="padding:12px; margin-bottom:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div class="muted-sm">Today's tasks</div>
+    <div class="muted-sm">Start: <span id="startOfDay">--</span> • End: <span id="endOfDay">--</span></div>
+  </div>
+  <div class="divider"></div>
+  <div class="list-wrap">
+    <div class="task-list" id="taskList">
+      <!-- tasks injected here -->
+    </div>
+  </div>
+</div>
 
     </div>
 
@@ -561,10 +618,20 @@ setCurrentDate();
         const name = document.createElement('div'); name.className='task-name'; name.textContent = task.name;
         left.appendChild(timePill); left.appendChild(name);
 
-        const actions = document.createElement('div'); actions.className='task-actions';
-        const edit = document.createElement('button'); edit.className='tiny btn'; edit.textContent='Edit'; edit.onclick = ()=>openEditTask(task.id);
-        const del = document.createElement('button'); del.className='tiny btn'; del.textContent='Delete'; del.onclick = ()=>deleteTask(task.id);
-        actions.appendChild(edit); actions.appendChild(del);
+        const actions = document.createElement('div');
+actions.className = 'task-actions';
+
+// 3-dot menu button
+const menuBtn = document.createElement('button');
+menuBtn.className = 'menu-btn';
+menuBtn.innerHTML = '&#8942;'; // vertical ellipsis
+menuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleTaskMenu(task.id, menuBtn);
+});
+
+actions.appendChild(menuBtn);
+
 
         div.appendChild(left); div.appendChild(actions); taskList.appendChild(div);
       });
@@ -728,6 +795,38 @@ setCurrentDate();
       .then(() => console.log('Service Worker registered successfully'))
       .catch((error) => console.log('Service Worker registration failed:', error));
   }
+  function toggleTaskMenu(taskId, button) {
+  // Remove any open menus
+  document.querySelectorAll('.task-menu').forEach(m => m.remove());
+
+  // Create menu
+  const menu = document.createElement('div');
+  menu.className = 'task-menu';
+  menu.innerHTML = `
+    <div class="task-menu-item" data-action="edit">Edit</div>
+    <div class="task-menu-item" data-action="delete">Delete</div>
+  `;
+
+  document.body.appendChild(menu);
+
+  // Position menu
+  const rect = button.getBoundingClientRect();
+  menu.style.top = `${rect.bottom + window.scrollY}px`;
+  menu.style.left = `${rect.left + window.scrollX - 100}px`;
+
+  // Action handlers
+  menu.querySelector('[data-action="edit"]').addEventListener('click', () => {
+    openEditTask(taskId);
+    menu.remove();
+  });
+  menu.querySelector('[data-action="delete"]').addEventListener('click', () => {
+    deleteTask(taskId);
+    menu.remove();
+  });
+
+  // Close if clicking outside
+  document.addEventListener('click', () => menu.remove(), { once: true });
+}
 </script>
 </body>
 </html>
