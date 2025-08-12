@@ -204,6 +204,67 @@ body {
     padding: 0 10px; /* keeps small space but centers */
   }
 }
+    /* === Drawer Menu === */
+.hamburger-btn {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  background: var(--card);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: left 0.3s ease;
+}
+
+.drawer.open {
+  left: 0;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.close-btn {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.drawer-content {
+  flex: 1;
+}
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 90;
+}
+
+.drawer-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
 </style>
 
 <link rel="manifest" href="manifest.json">
@@ -212,20 +273,42 @@ body {
   <div class="app" id="app">
     <div class="panel">
       <header class="app-header">
-        <div class="brand">
-          <div class="logo">R</div>
-          <div>
-            <h1>Today's Routine</h1>
-            <div class="muted-sm">Simple ADHD-friendly daily schedule</div>
-          </div>
-        </div>
+  <div class="brand">
+    <button id="menuButton" class="hamburger-btn">&#9776;</button>
+    <div>
+      <h1>Today's Routine</h1>
+      <div id="currentDate" class="muted-sm"></div>
+    </div>
+  </div>
 
-        <div class="controls">
-          <button class="btn" id="open-settings">Settings</button>
-          <button class="primary" id="add-task">+ Add Task</button>
-        </div>
-      </header>
+  <div class="controls">
+    <button class="primary" id="add-task">+ Add Task</button>
+  </div>
+</header>
 
+<div id="settingsDrawer" class="drawer">
+  <div class="drawer-header">
+    <h2>Settings</h2>
+    <button id="closeDrawer" class="close-btn">&times;</button>
+  </div>
+  <div class="drawer-content">
+    <div class="setting-row">
+      <label for="timeFormatSelect">Time format</label>
+      <select id="timeFormatSelect">
+        <option value="12">12-hour (AM/PM)</option>
+        <option value="24">24-hour</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label for="themeSelect">Theme</label>
+      <select id="themeSelect">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  </div>
+</div>
+<div id="drawerOverlay" class="drawer-overlay"></div>
       <div class="now-card" id="nowCard">
         <div class="now-title">Happening now</div>
         <div class="now-task" id="nowTask">No task — relax or add one</div>
@@ -394,6 +477,34 @@ body {
 
     // Init
     applyTheme(settings.theme);
+    // Drawer menu logic
+const menuButton = document.getElementById('menuButton');
+const settingsDrawer = document.getElementById('settingsDrawer');
+const drawerOverlay = document.getElementById('drawerOverlay');
+const closeDrawer = document.getElementById('closeDrawer');
+
+menuButton.addEventListener('click', () => {
+  settingsDrawer.classList.add('open');
+  drawerOverlay.classList.add('active');
+});
+
+closeDrawer.addEventListener('click', () => {
+  settingsDrawer.classList.remove('open');
+  drawerOverlay.classList.remove('active');
+});
+
+drawerOverlay.addEventListener('click', () => {
+  settingsDrawer.classList.remove('open');
+  drawerOverlay.classList.remove('active');
+});
+
+// Set today's date
+function setCurrentDate() {
+  const today = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('currentDate').textContent = today.toLocaleDateString(undefined, options);
+}
+setCurrentDate();
     qs('#timeFormatSelect').value = settings.timeFormat;
     qs('#themeSelect').value = settings.theme;
 
