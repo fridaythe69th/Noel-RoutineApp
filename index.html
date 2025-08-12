@@ -163,6 +163,39 @@
     position:absolute;opacity:0;pointer-events:auto;width:1px;height:1px;border:0;padding:0;margin:0;
   }
   .sr-only { position:absolute;left:-9999px }
+  /* === MOBILE OPTIMIZATION === */
+body {
+  padding: 10px;
+}
+
+.app {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.panel {
+  padding: 14px;
+}
+
+.now-task {
+  font-size: 18px;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .time-pill {
+    min-width: auto;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  .task-name {
+    font-size: 14px;
+  }
+}
+
 </style>
 
 <link rel="manifest" href="manifest.json">
