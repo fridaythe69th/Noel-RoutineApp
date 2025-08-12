@@ -544,8 +544,20 @@ function setCurrentDate() {
   document.getElementById('currentDate').textContent = today.toLocaleDateString(undefined, options);
 }
 setCurrentDate();
-    qs('#timeFormatSelect').value = settings.timeFormat;
-    qs('#themeSelect').value = settings.theme;
+    document.getElementById('timeFormatSelect').value = settings.timeFormat;
+document.getElementById('themeSelect').value = settings.theme;
+
+document.getElementById('timeFormatSelect').addEventListener('change', (e) => {
+  settings.timeFormat = e.target.value;
+  saveSettings();
+  renderAll();
+});
+
+document.getElementById('themeSelect').addEventListener('change', (e) => {
+  settings.theme = e.target.value;
+  saveSettings();
+  applyTheme(settings.theme);
+});
 
     renderRoutineOptions();
     renderAll();
