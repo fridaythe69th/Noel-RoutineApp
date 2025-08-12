@@ -1,38 +1,21 @@
 {
-  "name": "ADHD Routine",
+  "name": "Today's Routine",
   "short_name": "Routine",
-  "id": "adhd-routine",
-  "description": "A simple ADHD-friendly daily routine checklist.",
-  "start_url": ".",
-  "scope": ".",
+  "start_url": "./index.html",
   "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#6366f1",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#4CAF50",
-  "lang": "en",
-  "dir": "ltr",
-  "categories": ["productivity", "lifestyle", "health"],
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "screenshot1.png",
-      "sizes": "540x720",
-      "type": "image/png"
-    }
-  ],
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "prefer_related_applications": false
+  ]
 }
