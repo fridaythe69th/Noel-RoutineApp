@@ -574,7 +574,14 @@ setCurrentDate();
     qs('#newRoutine').addEventListener('click', openNewRoutine);
     routineSelect.addEventListener('change', onRoutineChange);
     qs('#timeFormatSelect').addEventListener('change', (e)=>{ settings.timeFormat = e.target.value; saveSettings(); renderAll(); });
-    qs('#themeSelect').addEventListener('change', (e)=>{ settings.theme = e.target.value; saveSettings(); applyTheme(settings.theme); });
+    document.querySelectorAll('#themeSelect').forEach(select => {
+  select.value = settings.theme;
+  select.addEventListener('change', (e) => {
+    settings.theme = e.target.value;
+    saveSettings();
+    applyTheme(settings.theme);
+  });
+});
 
     // Update every 30s to keep current task accurate
     setInterval(updateNowView, 30000);
