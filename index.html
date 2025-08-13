@@ -232,6 +232,84 @@
      {
   outline: 1px solid red !important;
 }
+/* --- STRONG FIX: kill horizontal overflow on all devices --- */
+html, body {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+}
+
+/* Force all children to stay inside viewport */
+body * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* App container safe */
+.app {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* Panel safety */
+.panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Drawer safe transform */
+.drawer {
+  left: 0 !important;
+  transform: translateX(-100%) !important;
+}
+.drawer.open {
+  transform: translateX(0) !important;
+}
+/* --- STRONG FIX: kill horizontal overflow on all devices --- */
+html, body {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+}
+
+/* Force all children to stay inside viewport */
+body * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* App container safe */
+.app {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* Panel safety */
+.panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Drawer safe transform */
+.drawer {
+  left: 0 !important;
+  transform: translateX(-100%) !important;
+}
+.drawer.open {
+  transform: translateX(0) !important;
+}
 
   </style>
 </head>
