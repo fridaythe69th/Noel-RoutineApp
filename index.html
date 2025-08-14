@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta name="theme-color" content="#6366f1" />
   <meta charset="utf-8" />
   <!-- Mobile-first, disable zooming as you requested -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -684,7 +685,7 @@
 
     // Optional PWA SW registration (uses your existing file if present)
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+      navigator.serviceWorker.register('./service-worker.js', { scope: './' }).catch(()=>{});
     }
   </script>
 </body>
