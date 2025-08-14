@@ -1,21 +1,52 @@
 {
+  "id": "/",
   "name": "Today's Routine",
   "short_name": "Routine",
-  "start_url": "./index.html",
+  "description": "A lightweight daily routine planner that works offline and installs like an app.",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#f7f8fb",
   "theme_color": "#6366f1",
   "orientation": "portrait",
+  "dir": "ltr",
+  "lang": "en",
+  "categories": ["productivity"],
   "icons": [
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/home-720x1280.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Home"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.example.routine",
+      "id": "com.example.routine"
+    }
+  ],
+  "launch_handler": {},
+  "scope_extensions": [
+    { "origin": "https://example.com" }
+  ],
+  "iarc_rating_id": "0000"
 }
