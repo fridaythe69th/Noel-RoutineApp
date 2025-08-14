@@ -15,25 +15,28 @@
   "categories": ["productivity"],
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
+      "purpose": "any"
+    },
     {
-      "src": "screenshots/home-720x1280.png",
-      "sizes": "720x1280",
+      "src": "icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Home"
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "prefer_related_applications": false,
@@ -44,7 +47,9 @@
       "id": "com.example.routine"
     }
   ],
-  "launch_handler": {},
+  "launch_handler": {
+    "client_mode": "navigate"
+  },
   "scope_extensions": [
     { "origin": "https://example.com" }
   ],
