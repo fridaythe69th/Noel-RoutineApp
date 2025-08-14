@@ -2,690 +2,833 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <!-- Mobile-first, disable zooming as you requested -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Today's Routine</title>
-  <link rel="manifest" href="manifest.json" />
-  
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Today's Routine — ADHD Friendly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ========== THEME TOKENS (pastel light / muted dark) ========== */
-    :root{
-      --bg: #f7fafc;           /* page background */
-      --panel: #ffffff;        /* cards/panels */
-      --text: #0f172a;         /* high contrast text */
-      --muted: #6b7280;        /* secondary text */
-      --accent: #7c8de6;       /* pastel indigo */
-      --accent-2: #a28be6;     /* pastel purple */
-      --glass: rgba(255,255,255,0.65);
-      --shadow: 0 10px 26px rgba(16,24,40,0.06);
-      --radius: 14px;
-      --danger: #ef476f;
-    }
-    [data-theme="dark"]{
-      --bg: #0a1229;
-      --panel: #0b1430;
-      --text: #e8eef8;
-      --muted: #9aa8c0;
-      --accent: #5f6df3;
-      --accent-2: #8b5cf6;
-      --glass: rgba(255,255,255,0.06);
-      --shadow: 0 16px 40px rgba(2,6,23,0.65);
-    }
+  :root {
+    --bg:#f7f8fb;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --text:#0f172a;
+    --accent:#6366f1;
+    --accent-2:#7c3aed;
+    --success:#10b981;
+    --danger:#ef4444;
+    --glass: rgba(255,255,255,0.6);
+    --shadow: 0 6px 18px rgba(16,24,40,0.06);
+    --radius:14px;
+    --task-height:64px;
+    --btn-bg: linear-gradient(90deg,var(--accent),var(--accent-2));
+    --btn-text: #fff;
+    --input-border: rgba(0,0,0,0.06);
+  }
+  [data-theme="dark"] {
+    --bg:#0b1220;
+    --card:#071025;
+    --muted:#94a3b8;
+    --text:#e6eef8;
+    --accent:#6d28d9;
+    --accent-2:#4f46e5;
+    --success:#34d399;
+    --danger:#fb7185;
+    --glass: rgba(255,255,255,0.03);
+    --shadow: 0 8px 30px rgba(2,6,23,0.7);
+    --btn-bg: linear-gradient(90deg,var(--accent-2),var(--accent));
+    --btn-text: #fff;
+    --input-border: rgba(255,255,255,0.06);
+  }
 
-    /* ========== GLOBAL RESET & MOBILE SAFETY ========== */
-    * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      width: 100%;
-      overflow-x: hidden;             /* kill any side scroll on mobile */
-      -webkit-overflow-scrolling: touch;
-      background: var(--bg);
-    }
-    body {
-      margin: 0;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+  * { box-sizing:border-box }
+  html,body { height:100%; }
+  body {
+    margin:0;
+    font-family:'Poppins',system-ui,Segoe UI,Arial;
+    background:linear-gradient(180deg,var(--bg),transparent);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:20px;
+  }
 
-    /* ========== LAYOUT (MOBILE-FIRST) ========== */
-    .wrap {
-      width: 100%;
-      max-width: 720px;               /* nice readable width */
-      margin: 0 auto;
-      padding: 10px 14px 24px;        /* small side padding that never overflows */
-    }
-    .panel {
-      background: var(--panel);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      width: 100%;
-      max-width: 100%;
-    }
+  .app {
+    max-width: 100%;
+    margin: 12px auto;
+    display: grid;
+    grid-template-columns: 1fr minmax(280px, 360px);
+    gap: 20px;
+    padding: 0 10px;
+  }
 
-    /* Header */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-    h1 {
-      font-size: 16px;
-      line-height: 1.2;
-      margin: 0 0 2px 0;
-    }
-    .muted-sm { color: var(--muted); font-size: 13px; }
-    .hamburger {
-      width: 44px; height: 44px;
-      display: inline-grid; place-items: center;
-      border: 1px solid rgba(0,0,0,0.06);
-      background: transparent;
-      color: var(--text);
-      border-radius: 12px;
-    }
-    .primary {
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      border: none; color: #fff; font-weight: 700;
-      padding: 10px 14px; border-radius: 12px;
-    }
+  .panel {
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px;
+  }
 
-    /* Now */
-    .now {
-      padding: 16px;
-      border-radius: 12px;
-      background: linear-gradient(90deg, rgba(124,139,230,0.10), rgba(162,139,230,0.06));
-      margin-bottom: 12px;
-    }
-    .now .title { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    .now .task  { font-size: 18px; font-weight: 800; }
-    .now .time  { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  header.app-header {
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
+  }
+  .brand { display:flex;gap:12px;align-items:center }
+  .logo {
+    width:44px;height:44px;border-radius:10px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;color:var(--btn-text);font-weight:700;font-size:18px;box-shadow:0 6px 18px rgba(99,102,241,0.12);
+  }
+  h1 { font-size:18px;margin:0 }
+  .controls { display:flex;gap:8px;align-items:center }
+  .btn {
+    background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:13px;color:var(--text);
+  }
+  [data-theme="dark"] .btn { border:1px solid rgba(255,255,255,0.04) }
+  .primary {
+    background:var(--btn-bg);color:var(--btn-text);border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;
+  }
 
-    /* Upcoming */
-    .upcoming { margin-bottom: 12px; }
-    .up-title { font-weight: 800; }
-    .up-list  { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-    .up-item {
-      display:flex; justify-content: space-between; align-items: center;
-      background: rgba(0,0,0,0.03);
-      padding: 10px 12px; border-radius: 10px;
-    }
-    .up-time  { color: var(--muted); font-size: 13px; }
+  .now-card {
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px;border-radius:12px;margin-bottom:12px;background:linear-gradient(90deg,rgba(99,102,241,0.08),rgba(124,58,237,0.06));
+  }
+  .now-title { font-size:12px;color:var(--muted);margin-bottom:6px }
+  .now-task { font-size:22px;font-weight:700 }
+  .now-time { font-size:13px;color:var(--muted);margin-top:6px }
 
-    /* Today’s tasks */
-    .today .header-row {
-      display:flex; justify-content: space-between; align-items: center;
-      padding: 6px 4px 10px;
-    }
-    .divider { height:1px; width:100%; background: rgba(0,0,0,0.06); border-radius: 4px; }
-    .list-wrap { max-height: 60vh; overflow: auto; padding: 8px 4px; }
+  .list-wrap {
+    flex-grow: 1;
+    min-height: 200px;
+    overflow: auto;
+    padding-right: 6px;
+  }
 
-    .task {
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 10px; padding: 10px 6px;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-    }
-    .task:last-child { border-bottom: none; }
-    .task-left { display:flex; align-items:center; gap: 10px; min-width: 0; }
-    .time-pill {
-      font-size: 12px; font-weight: 700;
-      padding: 6px 10px; border-radius: 999px;
-      white-space: nowrap;
-      background: linear-gradient(90deg, rgba(124,139,230,0.16), rgba(162,139,230,0.10));
-      color: var(--accent-2);
-    }
-    .task-name {
-      font-weight: 700; font-size: 15px;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .task-actions { display:flex; align-items:center; }
-    .menu-btn {
-      border: none; background: transparent; color: var(--muted);
-      font-size: 20px; padding: 6px 8px; border-radius: 10px;
-    }
-    .menu-btn:active { background: rgba(0,0,0,0.06); }
+  .task-item {
+    display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:10px;height:var(--task-height);background:linear-gradient(180deg,var(--card),var(--glass));transition:transform .35s cubic-bezier(.2,.9,.2,1),opacity .25s ease,box-shadow .2s ease;
+    box-shadow: 0 6px 12px rgba(2,6,23,0.03);
+  }
+  [data-theme="dark"] .task-item { box-shadow:0 6px 18px rgba(2,6,23,0.5) }
+  .task-left { display:flex;gap:12px;align-items:center }
+  .time-pill { min-width:110px;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,0.03);font-weight:600 }
+  [data-theme="dark"] .time-pill { background:rgba(255,255,255,0.03) }
+  .task-name { font-weight:600 }
+  .task-actions { display:flex;gap:6px }
+  .tiny { font-size:12px;padding:6px 8px;border-radius:8px }
 
-    /* floating dropdown menu */
-    .menu {
-      position: absolute; z-index: 9999;
-      background: var(--panel);
-      border-radius: 12px; box-shadow: var(--shadow);
-      overflow: hidden; min-width: 140px;
-    }
-    .menu-item { padding: 10px 12px; font-size: 14px; }
-    .menu-item:active { background: rgba(0,0,0,0.06); }
+  .upcoming-card { padding:12px;border-radius:12px;margin-top:6px;background:linear-gradient(180deg,var(--card),var(--glass)); }
+  .up-title { font-weight:700;margin:0 0 8px 0 }
+  .up-list { max-height:180px;overflow:auto }
+  .up-item { display:flex;justify-content:space-between;padding:8px 6px;border-radius:8px }
+  .muted { color:var(--muted) }
 
-    /* Drawer (settings only) */
-    .drawer {
-      position: fixed; inset: 0 auto 0 0;      /* left edge */
-      width: 86vw; max-width: 360px; height: 100%;
-      background: var(--panel); box-shadow: 8px 0 30px rgba(0,0,0,0.22);
-      transform: translateX(-100%); transition: transform .26s ease;
-      z-index: 300; padding: 16px; display:flex; flex-direction:column; gap: 12px;
-    }
-    .drawer.open { transform: translateX(0); }
-    .drawer-overlay {
-      position: fixed; inset: 0;
-      background: rgba(2,6,23,0.45);
-      opacity: 0; visibility: hidden; transition: opacity .18s ease;
-      z-index: 290;
-    }
-    .drawer-overlay.active { opacity: 1; visibility: visible; }
-    .drawer h2 { margin: 0 0 8px 0; }
+  .sidebar { display:flex;flex-direction:column;gap:12px }
+  .routines { display:flex;gap:8px;align-items:center }
+  select { padding:10px;border-radius:10px;border:1px solid var(--input-border);background:transparent;color:var(--text) }
+  .mini { font-size:13px }
 
-    label { display:block; font-size:13px; color: var(--muted); margin-bottom: 6px; }
-    select, input[type="text"] {
-      width: 100%; padding: 10px; border-radius: 10px;
-      border: 1px solid rgba(0,0,0,0.08); background: transparent; color: var(--text);
-    }
+  .add-btn { display:block;width:100%;padding:12px;border-radius:10px;background:var(--btn-bg);color:var(--btn-text);font-weight:700;border:none;cursor:pointer }
 
-    /* Modal (add/edit task & new routine) */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 400;
-      display: none; align-items: center; justify-content: center;
-      background: rgba(2,6,23,0.45);
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      width: min(560px, calc(100% - 28px));
-      background: var(--panel); color: var(--text);
-      border-radius: 14px; box-shadow: var(--shadow);
-      padding: 16px; transform: translateY(6px); opacity: 0;
-      transition: transform .2s ease, opacity .2s ease;
-    }
-    .modal-overlay.open .modal { transform: translateY(0); opacity: 1; }
-    .row { display:flex; gap: 8px; }
-    .row > * { flex: 1; }
-    .actions { display:flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
-    .btn { padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.08); background: transparent; color: var(--text); }
-    .btn.danger { border-color: transparent; background: #ffe6ea; color: #a30023; }
+  .settings { padding:12px;border-radius:10px;background:linear-gradient(180deg,var(--card),var(--glass)) }
+  .setting-row { display:flex;justify-content:space-between;align-items:center;padding:8px 0 }
 
-    /* Subtle enter/exit animations for task rows */
-    .fade-in { animation: fadeIn .24s ease both; }
-    .fade-out { animation: fadeOut .20s ease both; }
-    @keyframes fadeIn { from { opacity:.01; transform: translateY(8px) } to { opacity:1; transform: none } }
-    @keyframes fadeOut { from { opacity:1; transform:none } to { opacity:.01; transform: translateY(-8px) } }
+  input[type="text"],input[type="time"],select { padding:10px;border-radius:8px;border:1px solid var(--input-border);background:transparent;color:var(--text) }
+  .muted-sm { color:var(--muted);font-size:13px }
+  .divider { height:1px;background:var(--input-border);margin:10px 0;border-radius:4px }
 
-    /* Desktop nicety (no layout change; just centers content) */
-    @media (min-width: 980px){
-      .wrap { padding-left: 24px; padding-right: 24px; }
-    }
-  </style>
+  .modal-backdrop { position:fixed;inset:0;background:rgba(2,6,23,0.55);display:flex;align-items:center;justify-content:center;z-index:60 }
+  .modal { width:90%; max-width:520px; background:var(--card);border-radius:12px;padding:18px }
+
+  @media (max-width:880px) {
+    .app { grid-template-columns:1fr; }
+    .list-wrap { min-height: 180px; }
+    .sidebar { order:2; }
+  }
+
+  @media (max-width:600px) {
+    h1 { font-size: clamp(16px, 4vw, 20px); }
+    .logo { width:38px; height:38px; font-size:16px; }
+  }
+
+  @media (max-width:480px) {
+    body { padding:10px; }
+    .btn, .primary { font-size:12px; padding:8px 10px; }
+    .time-pill { min-width:auto; font-size:12px; padding:6px 8px; }
+  }
+
+  .task-list { position:relative }
+  .move-anim { transition:transform .45s cubic-bezier(.2,.9,.2,1),opacity .3s ease }
+
+  .time-control { display:flex;gap:8px;align-items:center }
+  .time-button {
+    appearance:none;
+    -webkit-appearance:none;
+    padding:10px 12px;border-radius:8px;border:1px solid var(--input-border);background:transparent;font-weight:600;cursor:pointer;color:var(--text);
+  }
+  .hidden-time-input {
+    position:absolute;opacity:0;pointer-events:auto;width:1px;height:1px;border:0;padding:0;margin:0;
+  }
+  .sr-only { position:absolute;left:-9999px }
+  /* === MOBILE OPTIMIZATION === */
+body {
+  padding: 10px;
+}
+
+.app {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.panel {
+  padding: 14px;
+}
+
+.now-task {
+  font-size: 18px;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .time-pill {
+    min-width: auto;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  .task-name {
+    font-size: 14px;
+  }
+}
+@media (max-width: 600px) {
+  body {
+    padding: 10px 0; /* less side padding */
+  }
+  .app {
+    margin: 0 auto;
+    padding: 0 10px; /* keeps small space but centers */
+  }
+}
+    /* === Drawer Menu === */
+.hamburger-btn {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  background: var(--card);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: left 0.3s ease;
+}
+
+.drawer.open {
+  left: 0;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.close-btn {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.drawer-content {
+  flex: 1;
+}
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 90;
+}
+
+.drawer-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+/* Modern task card styling */
+.task-item {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-pill {
+  font-size: 12px;
+  background: rgba(0,0,0,0.04);
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.task-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Menu button */
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Dropdown menu */
+.task-menu {
+  position: absolute;
+  background: var(--card);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  z-index: 999;
+}
+
+.task-menu-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.task-menu-item:hover {
+  background: rgba(0,0,0,0.06);
+}    
+</style>
+
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <div class="wrap">
-    <!-- HEADER -->
+  <div class="app" id="app">
     <div class="panel">
-      <header class="header">
-        <div class="brand">
-          <button id="menuBtn" class="hamburger" aria-label="Open settings">
-            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1h16M1 7h16M1 13h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <div>
-            <h1>Today's Routine</h1>
-            <div id="currentDate" class="muted-sm">Loading date…</div>
-          </div>
-        </div>
-        <button id="addTask" class="primary">+ Add Task</button>
-      </header>
-
-      <!-- HAPPENING NOW -->
-      <section class="now" id="nowCard">
-        <div class="title">Happening now</div>
-        <div class="task" id="nowTask">No task — relax or add one</div>
-        <div class="time" id="nowTime">--</div>
-      </section>
-
-      <!-- UPCOMING -->
-      <section class="upcoming">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="up-title">Upcoming</div>
-          <div class="up-time">Next few</div>
-        </div>
-        <div class="up-list" id="upcomingList"></div>
-      </section>
-
-      <!-- TODAY -->
-      <section class="today panel" style="margin-top: 8px;">
-        <div class="header-row">
-          <div style="font-weight: 800;">Today's tasks</div>
-          <div class="muted-sm">Start: <span id="startOfDay">--</span> • End: <span id="endOfDay">--</span></div>
-        </div>
-        <div class="divider"></div>
-        <div class="list-wrap">
-          <div id="taskList"></div>
-        </div>
-      </section>
-
-      <!-- ROUTINES (bottom) -->
-      <section class="panel" style="margin-top: 12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div style="font-weight:800">Routines</div>
-          <button id="newRoutine" class="btn">New</button>
-        </div>
-        <select id="routineSelect"></select>
-        <div class="muted-sm" style="margin-top:8px">Choose a routine to view/edit tasks. Data is saved locally.</div>
-      </section>
+      <header class="app-header">
+  <div class="brand">
+    <button id="menuButton" class="hamburger-btn">&#9776;</button>
+    <div>
+      <h1>Today's Routine</h1>
+      <div id="currentDate" class="muted-sm"></div>
     </div>
   </div>
 
-  <!-- SETTINGS DRAWER -->
-  <aside id="drawer" class="drawer" aria-hidden="true">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2>Settings</h2>
-      <button id="closeDrawer" class="btn" aria-label="Close">Close</button>
-    </div>
-    <div>
+  <div class="controls">
+    <button class="primary" id="add-task">+ Add Task</button>
+  </div>
+</header>
+
+<div id="settingsDrawer" class="drawer">
+  <div class="drawer-header">
+    <h2>Settings</h2>
+    <button id="closeDrawer" class="close-btn">&times;</button>
+  </div>
+  <div class="drawer-content">
+    <div class="setting-row">
       <label for="timeFormatSelect">Time format</label>
       <select id="timeFormatSelect">
         <option value="12">12-hour (AM/PM)</option>
         <option value="24">24-hour</option>
       </select>
     </div>
-    <div>
+    <div class="setting-row">
       <label for="themeSelect">Theme</label>
       <select id="themeSelect">
         <option value="light">Light</option>
         <option value="dark">Dark</option>
       </select>
     </div>
-  </aside>
-  <div id="drawerOverlay" class="drawer-overlay" aria-hidden="true"></div>
+  </div>
+</div>
+<div id="drawerOverlay" class="drawer-overlay"></div>
+      <div class="now-card" id="nowCard">
+        <div class="now-title">Happening now</div>
+        <div class="now-task" id="nowTask">No task — relax or add one</div>
+        <div class="now-time muted-sm" id="nowTime">--</div>
+      </div><!-- Upcoming section moved here -->
+<div class="upcoming-card">
+  <div class="up-title">Upcoming</div>
+  <div class="up-list" id="upcomingList">
+    <!-- upcoming tasks short list -->
+  </div>
+</div>
 
-  <!-- MODAL (reused for Add/Edit Task and New Routine) -->
-  <div id="modalOverlay" class="modal-overlay" aria-hidden="true">
-    <div id="modal" class="modal" role="dialog" aria-modal="true"></div>
+<!-- Today's tasks now comes after Upcoming -->
+<div class="panel" style="padding:12px; margin-bottom:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div class="muted-sm">Today's tasks</div>
+    <div class="muted-sm">Start: <span id="startOfDay">--</span> • End: <span id="endOfDay">--</span></div>
+  </div>
+  <div class="divider"></div>
+  <div class="list-wrap">
+    <div class="task-list" id="taskList">
+      <!-- tasks injected here -->
+    </div>
+  </div>
+</div>
+
+    </div>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-weight:700">Routines</div>
+          <button class="btn" id="newRoutine">New</button>
+        </div>
+        <div class="routines">
+          <select id="routineSelect"></select>
+        </div>
+        <div class="muted-sm" style="margin-top:8px">Choose a routine to edit its tasks. Routines & settings are saved locally in your browser.</div>
+      </div>
+
+      <div class="panel">
+        <div style="font-weight:700;margin-bottom:8px">Help & Tips</div>
+        <div class="muted-sm">Add tasks with clear time ranges. Edit tasks to correct times — they will auto-sort and animate into place to keep your day structured.</div>
+      </div>
+    </aside>
   </div>
 
+  <!-- task modal template -->
+  <template id="taskModalTpl">
+    <div class="modal-backdrop">
+      <div class="modal">
+        <h3 id="modalTitle">Add Task</h3>
+        <div style="margin-top:12px">
+          <div class="form-row" style="margin-bottom:10px">
+            <input type="text" id="taskName" placeholder="Task name (e.g., Office work)" style="flex:1;width:100%" />
+          </div>
+
+          <!-- labelled time button controls (open native time pickers) -->
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="flex:1">
+              <div class="muted-sm" style="margin-bottom:6px;font-weight:600">Start time</div>
+              <div class="time-control">
+                <button class="time-button" id="startTimeBtn" type="button">Set start</button>
+                <input class="hidden-time-input" id="taskStart" type="time" />
+              </div>
+            </div>
+
+            <div style="flex:1">
+              <div class="muted-sm" style="margin-bottom:6px;font-weight:600">End time</div>
+              <div class="time-control">
+                <button class="time-button" id="endTimeBtn" type="button">Set end</button>
+                <input class="hidden-time-input" id="taskEnd" type="time" />
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+            <button class="btn" id="modalCancel">Cancel</button>
+            <button class="primary" id="modalSave">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- routine modal -->
+  <template id="routineModalTpl">
+    <div class="modal-backdrop">
+      <div class="modal">
+        <h3>Create Routine</h3>
+        <div style="margin-top:12px">
+          <input type="text" id="routineName" placeholder="Routine name (e.g., Weekends)" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--input-border)" />
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button class="btn" id="routineCancel">Cancel</button>
+            <button class="btn" id="routineSave">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
   <script>
-    /* =================== STATE =================== */
-    const KEY = 'adhd_routines_v2';
-    const KEY_SETTINGS = 'adhd_routines_settings_v2';
+    // Simple routine/task manager matching your final blueprint
+    const KEY = 'adhd_routines_v1';
+    const KEY_SETTINGS = 'adhd_routines_settings_v1';
+
+    // Utilities
     const qs = s => document.querySelector(s);
     const qsa = s => Array.from(document.querySelectorAll(s));
-    const genId = () => 'id_' + Math.random().toString(36).slice(2,9);
+    const genId = () => 'id_'+Math.random().toString(36).slice(2,9);
 
+    // Default data
     const defaultData = {
-      routines:[{
-        id: genId(), name: 'Weekdays',
-        tasks: [
-          {id: genId(), name:'Wake up', start:'07:00', end:'07:30'},
-          {id: genId(), name:'Morning routine', start:'07:30', end:'08:15'},
-          {id: genId(), name:'Commute / Prep', start:'08:15', end:'09:30'},
-          {id: genId(), name:'Office work', start:'10:00', end:'13:00'},
-          {id: genId(), name:'Lunch', start:'13:00', end:'14:00'},
-          {id: genId(), name:'Afternoon work', start:'14:00', end:'18:00'},
-          {id: genId(), name:'Evening unwind', start:'20:00', end:'22:00'},
-        ]
-      }]
+      routines:[
+        {id: genId(), name: 'Weekdays', tasks:[
+          {id: genId(), name:'Wake up',start:'07:00',end:'07:30'},
+          {id: genId(), name:'Morning routine',start:'07:30',end:'08:15'},
+          {id: genId(), name:'Commute / Prep',start:'08:15',end:'09:30'},
+          {id: genId(), name:'Office work',start:'10:00',end:'13:00'},
+          {id: genId(), name:'Lunch',start:'13:00',end:'14:00'},
+          {id: genId(), name:'Afternoon work',start:'14:00',end:'18:00'},
+          {id: genId(), name:'Evening unwind',start:'20:00',end:'22:00'},
+        ]}
+      ]
     };
     const defaultSettings = { timeFormat:'12', theme:'light', selectedRoutineId:null };
 
-    let state = null, settings = null;
-    try { state = JSON.parse(localStorage.getItem(KEY)) } catch(_) {}
-    try { settings = JSON.parse(localStorage.getItem(KEY_SETTINGS)) } catch(_) {}
-    if(!state){ state = defaultData; localStorage.setItem(KEY, JSON.stringify(state)) }
-    if(!settings){ settings = defaultSettings; localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings)) }
-    if(!settings.selectedRoutineId){ settings.selectedRoutineId = state.routines[0].id; localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings)) }
+    // Load state/settings
+    function loadState(){ try{ const s = localStorage.getItem(KEY); return s?JSON.parse(s):null;}catch(e){return null} }
+    function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+    function loadSettings(){ try{ const s = localStorage.getItem(KEY_SETTINGS); return s?JSON.parse(s):null;}catch(e){return null} }
+    function saveSettings(){ localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings)); }
 
-    function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)) }
-    function saveSettings(){ localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings)) }
+    let state = loadState();
+    let settings = loadSettings();
+    if(!state){ state = defaultData; saveState(); }
+    if(!settings){ settings = defaultSettings; saveSettings(); }
+    if(!settings.selectedRoutineId){ settings.selectedRoutineId = state.routines[0].id; saveSettings(); }
 
-    /* =================== ELEMENTS =================== */
-    const addTaskBtn = qs('#addTask');
-    const nowTaskEl = qs('#nowTask');
-    const nowTimeEl = qs('#nowTime');
-    const currentDateEl = qs('#currentDate');
-    const upList = qs('#upcomingList');
+    // Elements
+    const routineSelect = qs('#routineSelect');
     const taskList = qs('#taskList');
+    const upcomingList = qs('#upcomingList');
+    const nowTask = qs('#nowTask');
+    const nowTime = qs('#nowTime');
     const startOfDayEl = qs('#startOfDay');
     const endOfDayEl = qs('#endOfDay');
-    const routineSelect = qs('#routineSelect');
-    const newRoutineBtn = qs('#newRoutine');
 
-    // Drawer & settings
-    const drawer = qs('#drawer');
-    const drawerOverlay = qs('#drawerOverlay');
-    const menuBtn = qs('#menuBtn');
-    const closeDrawerBtn = qs('#closeDrawer');
-    const timeFormatSelect = qs('#timeFormatSelect');
-    const themeSelect = qs('#themeSelect');
-
-    // Modal
-    const modalOverlay = qs('#modalOverlay');
-    const modal = qs('#modal');
-
-    /* =================== HELPERS =================== */
-    function applyTheme(t){
-      document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
-    }
-    function setToday(){ currentDateEl.textContent = new Date().toLocaleDateString(undefined, {weekday:'long', year:'numeric', month:'long', day:'numeric'}) }
-
+    // Init
     applyTheme(settings.theme);
-    setToday();
-    timeFormatSelect.value = settings.timeFormat;
-    themeSelect.value = settings.theme;
+    // Drawer menu logic
+const menuButton = document.getElementById('menuButton');
+const settingsDrawer = document.getElementById('settingsDrawer');
+const drawerOverlay = document.getElementById('drawerOverlay');
+const closeDrawer = document.getElementById('closeDrawer');
 
-    function currentRoutine(){ return state.routines.find(r => r.id === settings.selectedRoutineId) || state.routines[0]; }
-    function timeToMin(t){ const [h,m] = t.split(':').map(Number); return h*60 + m }
-    function minToTime(m){ const hh = Math.floor(m/60), mm = m%60; return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}` }
-    function fmt(t){
-      const [h,m] = t.split(':').map(Number);
-      if(settings.timeFormat === '24') return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-      const am = h < 12; const h12 = ((h + 11) % 12) + 1;
-      return `${h12}:${String(m).padStart(2,'0')} ${am?'AM':'PM'}`;
+menuButton.addEventListener('click', () => {
+  settingsDrawer.classList.add('open');
+  drawerOverlay.classList.add('active');
+});
+
+closeDrawer.addEventListener('click', () => {
+  settingsDrawer.classList.remove('open');
+  drawerOverlay.classList.remove('active');
+});
+
+drawerOverlay.addEventListener('click', () => {
+  settingsDrawer.classList.remove('open');
+  drawerOverlay.classList.remove('active');
+});
+
+// Set today's date
+function setCurrentDate() {
+  const today = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('currentDate').textContent = today.toLocaleDateString(undefined, options);
+}
+setCurrentDate();
+    document.getElementById('timeFormatSelect').value = settings.timeFormat;
+document.getElementById('themeSelect').value = settings.theme;
+
+document.getElementById('timeFormatSelect').addEventListener('change', (e) => {
+  settings.timeFormat = e.target.value;
+  saveSettings();
+  renderAll();
+});
+
+document.getElementById('themeSelect').addEventListener('change', (e) => {
+  settings.theme = e.target.value;
+  saveSettings();
+  applyTheme(settings.theme);
+});
+
+    renderRoutineOptions();
+    renderAll();
+
+    // Events
+    qs('#add-task').addEventListener('click', openAddTask);
+    qs('#open-settings').addEventListener('click', ()=>alert('Use the quick settings on the right to change time format and theme.'));
+    qs('#newRoutine').addEventListener('click', openNewRoutine);
+    routineSelect.addEventListener('change', onRoutineChange);
+    qs('#timeFormatSelect').addEventListener('change', (e)=>{ settings.timeFormat = e.target.value; saveSettings(); renderAll(); });
+    document.querySelectorAll('#themeSelect').forEach(select => {
+  select.value = settings.theme;
+  select.addEventListener('change', (e) => {
+    settings.theme = e.target.value;
+    saveSettings();
+    applyTheme(settings.theme);
+  });
+});
+
+    // Update every 30s to keep current task accurate
+    setInterval(updateNowView, 30000);
+
+    function applyTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme==='dark'?'dark':'light');
     }
 
-    /* =================== RENDER =================== */
     function renderRoutineOptions(){
       routineSelect.innerHTML = '';
-      state.routines.forEach(r => {
-        const o = document.createElement('option');
-        o.value = r.id; o.textContent = r.name;
-        if(r.id === settings.selectedRoutineId) o.selected = true;
-        routineSelect.appendChild(o);
-      });
+      state.routines.forEach(r => { const opt = document.createElement('option'); opt.value = r.id; opt.textContent = r.name; if(settings.selectedRoutineId===r.id) opt.selected=true; routineSelect.appendChild(opt); });
     }
 
-    function renderUpcoming(){
-      const r = currentRoutine(); if(!r) return;
-      const now = new Date(); const cur = now.getHours()*60 + now.getMinutes();
-      const list = r.tasks.filter(t => timeToMin(t.start) >= cur).slice(0,6);
-      upList.innerHTML = '';
-      if(list.length === 0){ const d = document.createElement('div'); d.className='muted-sm'; d.textContent='No upcoming tasks'; upList.appendChild(d); return; }
-      list.forEach(t => {
-        const row = document.createElement('div'); row.className='up-item';
-        const name = document.createElement('div'); name.textContent = t.name;
-        const time = document.createElement('div'); time.className='up-time'; time.textContent = fmt(t.start);
-        row.appendChild(name); row.appendChild(time); upList.appendChild(row);
-      });
-    }
+    function currentRoutine(){ return state.routines.find(r=>r.id===settings.selectedRoutineId) || state.routines[0]; }
 
-    function renderTasks(){
-      const r = currentRoutine(); if(!r) return;
-      // sort by start
-      r.tasks.sort((a,b) => timeToMin(a.start) - timeToMin(b.start));
+    function renderAll(){ renderTaskList(); updateNowView(); }
 
-      // start/end of day
-      if(r.tasks.length){ startOfDayEl.textContent = fmt(r.tasks[0].start); endOfDayEl.textContent = fmt(r.tasks[r.tasks.length-1].end) }
-      else { startOfDayEl.textContent = endOfDayEl.textContent = '--' }
+    function renderTaskList(){
+      const routine = currentRoutine();
+      if(!routine) return;
 
-      // snapshot old nodes for gentle reflow
-      const old = Array.from(taskList.children);
-      const oldRect = old.map(n => n.getBoundingClientRect());
+      // sort tasks by start time
+      routine.tasks.sort((a,b) => timeToMinutes(a.start) - timeToMinutes(b.start));
 
-      taskList.innerHTML = '';
-      r.tasks.forEach(t => {
-        const row = document.createElement('div'); row.className='task fade-in'; row.dataset.id = t.id;
+      // update start/end of day markers
+      if(routine.tasks.length){
+        startOfDayEl.textContent = formatTime(routine.tasks[0].start);
+        endOfDayEl.textContent = formatTime(routine.tasks[routine.tasks.length-1].end);
+      } else { startOfDayEl.textContent='--'; endOfDayEl.textContent='--'; }
 
+      // animated reorder: snapshot old nodes
+      const oldNodes = Array.from(taskList.children);
+      const oldRects = oldNodes.map(n=>n.getBoundingClientRect());
+
+      taskList.innerHTML='';
+
+      routine.tasks.forEach(task => {
+        const div = document.createElement('div'); div.className='task-item move-anim'; div.dataset.id = task.id;
         const left = document.createElement('div'); left.className='task-left';
-        const pill = document.createElement('div'); pill.className='time-pill'; pill.textContent = `${fmt(t.start)} → ${fmt(t.end)}`;
-        const name = document.createElement('div'); name.className='task-name'; name.textContent = t.name;
-        left.appendChild(pill); left.appendChild(name);
+        const timePill = document.createElement('div'); timePill.className='time-pill'; timePill.textContent = `${formatTime(task.start)} → ${formatTime(task.end)}`;
+        const name = document.createElement('div'); name.className='task-name'; name.textContent = task.name;
+        left.appendChild(timePill); left.appendChild(name);
 
-        const actions = document.createElement('div'); actions.className='task-actions';
-        const menuBtn = document.createElement('button'); menuBtn.className='menu-btn'; menuBtn.innerHTML='&#8942;';
-        menuBtn.addEventListener('click', (e)=> { e.stopPropagation(); showTaskMenu(t.id, menuBtn) });
-        actions.appendChild(menuBtn);
+        const actions = document.createElement('div');
+actions.className = 'task-actions';
 
-        row.appendChild(left); row.appendChild(actions);
-        taskList.appendChild(row);
+// 3-dot menu button
+const menuBtn = document.createElement('button');
+menuBtn.className = 'menu-btn';
+menuBtn.innerHTML = '&#8942;'; // vertical ellipsis
+menuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleTaskMenu(task.id, menuBtn);
+});
+
+actions.appendChild(menuBtn);
+
+
+        div.appendChild(left); div.appendChild(actions); taskList.appendChild(div);
       });
 
-      // gentle position animation
-      const neu = Array.from(taskList.children);
-      neu.forEach(n => {
-        const prev = old.find(o => o.dataset.id === n.dataset.id);
-        if(prev){
-          const pr = oldRect[old.indexOf(prev)];
-          const nr = n.getBoundingClientRect();
-          const dy = pr.top - nr.top;
+      // animate from old positions
+      const newNodes = Array.from(taskList.children);
+      newNodes.forEach((node)=>{
+        const old = oldNodes.find(n=>n.dataset.id === node.dataset.id);
+        if(old){
+          const oldRect = oldRects[oldNodes.indexOf(old)];
+          const newRect = node.getBoundingClientRect();
+          const dy = oldRect.top - newRect.top;
           if(Math.abs(dy) > 1){
-            n.style.transform = `translateY(${dy}px)`;
-            requestAnimationFrame(()=> { n.style.transition='transform .3s cubic-bezier(.2,.9,.2,1)'; n.style.transform=''; });
+            node.style.transform = `translateY(${dy}px)`;
+            node.style.opacity = '0.9';
+            requestAnimationFrame(()=>{ node.style.transition='transform .45s cubic-bezier(.2,.9,.2,1),opacity .3s ease'; node.style.transform = ''; node.style.opacity='1'; });
           }
+        } else {
+          node.style.opacity='0';
+          requestAnimationFrame(()=>{ node.style.transition='opacity .25s ease'; node.style.opacity='1'; });
         }
       });
 
       renderUpcoming();
     }
 
-    function renderNow(){
-      const r = currentRoutine(); if(!r) return;
-      const cur = new Date(); const nowM = cur.getHours()*60 + cur.getMinutes();
-      let current=null, next=null;
-      for(const t of r.tasks){
-        const s = timeToMin(t.start), e = timeToMin(t.end);
-        if(nowM >= s && nowM < e){ current = t; break; }
-        if(s > nowM && !next){ next = t; }
-      }
-      if(current){ nowTaskEl.textContent = current.name; nowTimeEl.textContent = `${fmt(current.start)} → ${fmt(current.end)}`; }
-      else if(next){ nowTaskEl.textContent = 'No current task'; nowTimeEl.textContent = `Next: ${next.name} • ${fmt(next.start)}`; }
-      else { nowTaskEl.textContent='No current task'; nowTimeEl.textContent='You’re between routines — add one'; }
-
-      renderTasks();
+    function renderUpcoming(){
+      const routine = currentRoutine(); upcomingList.innerHTML='';
+      if(!routine) return;
+      const nowM = getNowMinutes();
+      const upcoming = routine.tasks.filter(t => timeToMinutes(t.start) >= nowM).slice(0,6);
+      upcoming.forEach(t=>{
+        const div = document.createElement('div'); div.className='up-item';
+        const left=document.createElement('div'); left.textContent = t.name;
+        const right=document.createElement('div'); right.className='muted'; right.textContent = formatTime(t.start);
+        div.appendChild(left); div.appendChild(right); upcomingList.appendChild(div);
+      });
+      if(upcoming.length===0){ const p=document.createElement('div'); p.className='muted-sm'; p.textContent='No upcoming tasks'; upcomingList.appendChild(p); }
     }
 
-    function renderAll(){
-      renderRoutineOptions();
-      renderNow();
-    }
-
-    /* =================== MENUS & MODALS =================== */
-    function clamp(val, min, max){ return Math.max(min, Math.min(max, val)) }
-
-    function showTaskMenu(taskId, anchorBtn){
-      // close existing
-      qsa('.menu').forEach(m => m.remove());
-
-      const m = document.createElement('div');
-      m.className = 'menu';
-      m.innerHTML = `<div class="menu-item" data-a="edit">Edit</div><div class="menu-item" data-a="delete">Delete</div>`;
-      document.body.appendChild(m);
-
-      // position near button and keep inside viewport
-      const r = anchorBtn.getBoundingClientRect();
-      const vw = window.innerWidth;
-      const left = clamp(r.left + window.scrollX - 100, 8, vw - 160);
-      const top = r.bottom + window.scrollY + 6;
-      m.style.left = left + 'px';
-      m.style.top = top + 'px';
-
-      m.querySelector('[data-a="edit"]').onclick = ()=> { const t = currentRoutine().tasks.find(x => x.id===taskId); openTaskModal(t); m.remove(); };
-      m.querySelector('[data-a="delete"]').onclick = ()=> { deleteTask(taskId); m.remove(); };
-
-      setTimeout(()=> document.addEventListener('click', ()=> m.remove(), {once:true}), 0);
-    }
-
-    function openModal(html){
-      modal.innerHTML = html;
-      modalOverlay.classList.add('open');
-      modalOverlay.setAttribute('aria-hidden','false');
-      // focus first input/select
-      setTimeout(()=> {
-        const f = modal.querySelector('input,select,button'); if(f) f.focus();
-      }, 120);
-    }
-    function closeModal(){
-      modalOverlay.classList.remove('open');
-      modalOverlay.setAttribute('aria-hidden','true');
-      modal.innerHTML = '';
-    }
-    modalOverlay.addEventListener('click', (e)=> { if(e.target === modalOverlay) closeModal() });
-
-    // Scrollable HH:MM picker factory (respects 12/24)
-    function buildTimePicker(init24){
-      const wrap = document.createElement('div'); wrap.className='row'; // horizontal on wide, stacks on narrow
-      const hour = document.createElement('select');
-      const minute = document.createElement('select');
-      hour.style.height = minute.style.height = '42px';
-
-      let ampm = null;
-
-      if(settings.timeFormat === '24'){
-        for(let h=0; h<24; h++){
-          const o = document.createElement('option'); o.value=String(h).padStart(2,'0'); o.textContent=String(h).padStart(2,'0'); hour.appendChild(o);
+    function updateNowView(){
+      const routine = currentRoutine();
+      const nowM = getNowMinutes();
+      let current = null;
+      let next = null;
+      if(routine){
+        for(const t of routine.tasks){
+          const s = timeToMinutes(t.start); const e = timeToMinutes(t.end);
+          if(nowM >= s && nowM < e){ current = t; break; }
+          if(s > nowM){ next = t; break; }
         }
-      } else {
-        for(let h=1; h<=12; h++){
-          const o = document.createElement('option'); o.value=String(h).padStart(2,'0'); o.textContent=String(h); hour.appendChild(o);
-        }
-        ampm = document.createElement('select'); ['AM','PM'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; ampm.appendChild(o); });
-        ampm.style.height='42px';
       }
-      for(let m=0; m<60; m++){
-        const o = document.createElement('option'); o.value=String(m).padStart(2,'0'); o.textContent=String(m).padStart(2,'0'); minute.appendChild(o);
-      }
+      if(current){ nowTask.textContent = current.name; nowTime.textContent = `${formatTime(current.start)} → ${formatTime(current.end)}`; }
+      else if(next){ nowTask.textContent = 'No current task'; nowTime.textContent = `Next: ${next.name} • ${formatTime(next.start)}`; }
+      else { nowTask.textContent = 'No current task'; nowTime.textContent = 'You are between routines — consider adding a task'; }
 
-      // defaults / init
-      if(init24){
-        const [hh,mm] = init24.split(':');
-        if(settings.timeFormat === '24'){ hour.value = hh; }
-        else {
-          const H = Number(hh); const isPM = H>=12; const h12 = ((H+11)%12)+1;
-          hour.value = String(h12).padStart(2,'0'); ampm.value = isPM ? 'PM' : 'AM';
-        }
-        minute.value = mm;
-      } else {
-        const now = new Date(); let H = now.getHours(); const M = String(now.getMinutes()).padStart(2,'0');
-        if(settings.timeFormat === '24'){ hour.value=String(H).padStart(2,'0'); }
-        else { const isPM = H>=12; const h12 = ((H+11)%12)+1; hour.value = String(h12).padStart(2,'0'); ampm.value=isPM?'PM':'AM'; }
-        minute.value=M;
-      }
+      // Keep list & upcoming in sync
+      renderTaskList();
+    }
 
-      wrap.appendChild(hour); wrap.appendChild(minute); if(ampm) wrap.appendChild(ampm);
+    function getNowMinutes(){ const d = new Date(); return d.getHours()*60 + d.getMinutes(); }
+    function timeToMinutes(t){ if(!t) return 0; const [hh,mm] = t.split(':').map(Number); return hh*60 + mm; }
+    function formatTime(t){
+      if(!t) return '--';
+      const [hh,mm] = t.split(':').map(Number);
+      if(settings.timeFormat === '24'){ return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`; }
+      else { const am = hh < 12; const h12 = ((hh + 11) % 12) + 1; return `${h12}:${String(mm).padStart(2,'0')} ${am? 'AM':'PM'}`; }
+    }
 
-      function to24(){
-        const mm = minute.value;
-        if(settings.timeFormat === '24'){
-          return `${hour.value}:${mm}`;
+    // Add / Edit / Delete logic
+    function openAddTask(){ openTaskModal(); }
+    function openEditTask(taskId){ const routine = currentRoutine(); const t = routine.tasks.find(x=>x.id===taskId); openTaskModal(t); }
+
+    function openTaskModal(task=null){
+      const tpl = qs('#taskModalTpl'); const frag = tpl.content.cloneNode(true);
+      const backdrop = frag.querySelector('.modal-backdrop');
+      const title = frag.querySelector('#modalTitle');
+      const name = frag.querySelector('#taskName');
+      const startInput = frag.querySelector('#taskStart');
+      const endInput = frag.querySelector('#taskEnd');
+      const startBtn = frag.querySelector('#startTimeBtn');
+      const endBtn = frag.querySelector('#endTimeBtn');
+      const cancel = frag.querySelector('#modalCancel');
+      const save = frag.querySelector('#modalSave');
+
+      if(task){ title.textContent='Edit Task'; name.value = task.name; startInput.value = task.start; endInput.value = task.end; startBtn.textContent = formatTime(task.start); endBtn.textContent = formatTime(task.end); }
+      else { title.textContent='Add Task'; startBtn.textContent='Set start'; endBtn.textContent='Set end'; }
+
+      // wire up labelled buttons to open hidden native time inputs
+      startBtn.addEventListener('click', ()=> startInput.focus());
+      endBtn.addEventListener('click', ()=> endInput.focus());
+
+      // when native inputs change, reflect label text
+      startInput.addEventListener('input', ()=>{ if(startInput.value) startBtn.textContent = formatTime(startInput.value); });
+      endInput.addEventListener('input', ()=>{ if(endInput.value) endBtn.textContent = formatTime(endInput.value); });
+
+      cancel.addEventListener('click', ()=>{ backdrop.remove(); });
+      backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) backdrop.remove(); });
+
+      save.addEventListener('click', ()=>{
+        const nm = name.value.trim(); const st = startInput.value; const ed = endInput.value;
+        if(!nm || !st || !ed){ alert('Please provide a name, start and end time'); return; }
+        if(timeToMinutes(ed) <= timeToMinutes(st)){ alert('End time must be after start time'); return; }
+        const routine = currentRoutine();
+        if(task){
+          const tObj = routine.tasks.find(x=>x.id===task.id);
+          tObj.name = nm; tObj.start = st; tObj.end = ed;
         } else {
-          let h = Number(hour.value);
-          const isPM = ampm.value === 'PM';
-          if(h === 12){ h = isPM ? 12 : 0 } else { if(isPM) h += 12 }
-          return `${String(h).padStart(2,'0')}:${mm}`;
+          routine.tasks.push({id: genId(), name:nm, start:st, end:ed});
         }
-      }
-      return { wrap, to24 };
-    }
+        saveState();
+        backdrop.remove();
+        // sort and animate
+        renderTaskList();
+        updateNowView();
+      });
 
-    function openTaskModal(task){
-      const isEdit = !!task;
-      const nameVal = isEdit ? task.name : '';
-      const startVal = isEdit ? task.start : null;
-      const endVal = isEdit ? task.end : null;
-
-      const startPicker = buildTimePicker(startVal);
-      const endPicker = buildTimePicker(endVal);
-
-      openModal(`
-        <h3 style="margin:0 0 8px 0">${isEdit?'Edit Task':'Add Task'}</h3>
-        <div class="row" style="margin-bottom:8px">
-          <input id="taskName" type="text" placeholder="Task name (e.g., Office work)" value="${nameVal.replace(/"/g,'&quot;')}" />
-        </div>
-        <div class="row" id="timePickers"></div>
-        <div class="actions">
-          <button class="btn" id="cancelBtn">Cancel</button>
-          <button class="primary" id="saveBtn">${isEdit?'Save':'Add'}</button>
-        </div>
-      `);
-
-      // mount pickers
-      const tp = qs('#timePickers');
-      const col1 = document.createElement('div'); const col2 = document.createElement('div');
-      col1.innerHTML = `<label style="margin-bottom:6px">Start</label>`;
-      col2.innerHTML = `<label style="margin-bottom:6px">End</label>`;
-      col1.appendChild(startPicker.wrap);
-      col2.appendChild(endPicker.wrap);
-      tp.appendChild(col1); tp.appendChild(col2);
-
-      qs('#cancelBtn').onclick = closeModal;
-      qs('#saveBtn').onclick = ()=>{
-        const nm = qs('#taskName').value.trim();
-        const st = startPicker.to24();
-        const ed = endPicker.to24();
-        if(!nm) return alert('Please enter a task name');
-        if(timeToMin(ed) <= timeToMin(st)) return alert('End time must be after start time');
-
-        const r = currentRoutine();
-        if(isEdit){ const t = r.tasks.find(x=>x.id===task.id); t.name=nm; t.start=st; t.end=ed; }
-        else { r.tasks.push({ id: genId(), name: nm, start: st, end: ed }); }
-        saveState(); closeModal(); renderAll();
-      };
+      document.body.appendChild(frag);
     }
 
     function deleteTask(id){
       if(!confirm('Delete this task?')) return;
-      const r = currentRoutine();
-      r.tasks = r.tasks.filter(t => t.id !== id);
-      saveState(); renderAll();
+      const routine = currentRoutine();
+      routine.tasks = routine.tasks.filter(t=>t.id!==id);
+      saveState();
+      renderAll();
     }
 
-    // New routine modal
-    newRoutineBtn.addEventListener('click', ()=>{
-      openModal(`
-        <h3 style="margin:0 0 8px 0">Create Routine</h3>
-        <div class="row" style="margin-bottom:8px">
-          <input id="routineName" type="text" placeholder="Routine name (e.g., Weekends)" />
-        </div>
-        <div class="actions">
-          <button class="btn" id="cancelR">Cancel</button>
-          <button class="primary" id="saveR">Create</button>
-        </div>
-      `);
-      qs('#cancelR').onclick = closeModal;
-      qs('#saveR').onclick = ()=>{
-        const name = qs('#routineName').value.trim();
-        if(!name) return alert('Please name the routine');
-        const r = { id: genId(), name, tasks: [] };
+    // routines
+    function openNewRoutine(){
+      const tpl = qs('#routineModalTpl'); const frag = tpl.content.cloneNode(true);
+      const backdrop = frag.querySelector('.modal-backdrop');
+      const input = frag.querySelector('#routineName');
+      const cancel = frag.querySelector('#routineCancel');
+      const saveBtn = frag.querySelector('#routineSave');
+
+      cancel.addEventListener('click', ()=>backdrop.remove());
+      backdrop.addEventListener('click',(e)=>{ if(e.target===backdrop) backdrop.remove(); });
+
+      saveBtn.addEventListener('click', ()=>{
+        const name = input.value.trim(); if(!name) return alert('Please name the routine');
+        const r = {id: genId(), name, tasks: []};
         state.routines.push(r); saveState();
         settings.selectedRoutineId = r.id; saveSettings();
-        closeModal(); renderAll();
-      };
-    });
-
-    /* =================== EVENTS =================== */
-    // Add Task
-    addTaskBtn.addEventListener('click', ()=> openTaskModal());
-
-    // Routine select
-    routineSelect.addEventListener('change', (e)=> {
-      settings.selectedRoutineId = e.target.value;
-      saveSettings(); renderAll();
-    });
-
-    // Drawer controls
-    function openDrawer(){ drawer.classList.add('open'); drawerOverlay.classList.add('active'); drawer.setAttribute('aria-hidden','false') }
-    function closeDrawer(){ drawer.classList.remove('open'); drawerOverlay.classList.remove('active'); drawer.setAttribute('aria-hidden','true') }
-    menuBtn.addEventListener('click', openDrawer);
-    closeDrawerBtn.addEventListener('click', closeDrawer);
-    drawerOverlay.addEventListener('click', closeDrawer);
-
-    // Settings
-    timeFormatSelect.addEventListener('change', (e)=> { settings.timeFormat = e.target.value; saveSettings(); renderAll(); });
-    themeSelect.addEventListener('change', (e)=> { settings.theme = e.target.value; saveSettings(); applyTheme(settings.theme); });
-
-    // Keep "Now" updated every 30s
-    setInterval(renderNow, 30000);
-
-    // Initial render
-    renderAll();
-
-    // Optional PWA SW registration (uses your existing file if present)
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+        renderRoutineOptions(); renderAll(); backdrop.remove();
+      });
+      document.body.appendChild(frag);
     }
+
+    function onRoutineChange(e){
+      settings.selectedRoutineId = e.target.value; saveSettings(); renderAll();
+    }
+
+    // ensure initial save
+    saveState(); saveSettings();
+
   </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+      .then(() => console.log('Service Worker registered successfully'))
+      .catch((error) => console.log('Service Worker registration failed:', error));
+  }
+  function toggleTaskMenu(taskId, button) {
+  // Remove any open menus
+  document.querySelectorAll('.task-menu').forEach(m => m.remove());
+
+  // Create menu
+  const menu = document.createElement('div');
+  menu.className = 'task-menu';
+  menu.innerHTML = `
+    <div class="task-menu-item" data-action="edit">Edit</div>
+    <div class="task-menu-item" data-action="delete">Delete</div>
+  `;
+
+  document.body.appendChild(menu);
+
+  // Position menu
+  const rect = button.getBoundingClientRect();
+  menu.style.top = `${rect.bottom + window.scrollY}px`;
+  menu.style.left = `${rect.left + window.scrollX - 100}px`;
+
+  // Action handlers
+  menu.querySelector('[data-action="edit"]').addEventListener('click', () => {
+    openEditTask(taskId);
+    menu.remove();
+  });
+  menu.querySelector('[data-action="delete"]').addEventListener('click', () => {
+    deleteTask(taskId);
+    menu.remove();
+  });
+
+  // Close if clicking outside
+  document.addEventListener('click', () => menu.remove(), { once: true });
+}
+</script>
 </body>
 </html>
