@@ -6,7 +6,7 @@
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": ["fullscreen", "standalone"],
   "background_color": "#f7f8fb",
   "theme_color": "#6366f1",
   "orientation": "portrait",
